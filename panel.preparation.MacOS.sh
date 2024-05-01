@@ -40,7 +40,7 @@ bcftools query -f '%POS\n' ${NAME1000}|sort|uniq -cd   > dublicated.snps.txt
 # sed -i 's/^ *//' dublicated.snps.txt
 # sed -i 's/.* //' dublicated.snps.txt 
 cut -d " " -f5 dublicated.snps.txt > dublicated.cut.snps.txt
-sed -i -e 's/^/22\t/' dublicated.cut.snps.txt 
+sed -i -e "s/^/$CHR\t/" dublicated.cut.snps.txt 
 bcftools view -v snps -T ^dublicated.cut.snps.txt  -S samples.for.hmm.txt  ${NAME1000} -Oz -o ${temporary}
 tabix -p vcf ${temporary}
 echo "removed dublicated snps and extract reference and observable samples"
