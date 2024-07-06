@@ -80,7 +80,7 @@ If you working with hg19 the list of acestral allels could be extract from vcf [
 ./ancestral.alleles.sh 22 way.to.1000GP.chr22
 ```
 
-to make file hg19.AA.chr22.txt.
+to make file hg19.AA.chr22.txt in created directory Ancestral.Allels.
 
 
 
