@@ -34,14 +34,14 @@ If you have the files of such types
 
 
 
-# Run DAI.seg without EM algorithm
+## Run DAI.seg without EM algorithm
 ```bash
 python3 dai.seg.2.py --obs_samples obs.samples.txt --bed test.bed   --HMM_par par.file.txt --EM no --prepared_file allels.ref.and.obs.chr22.txt --o out.chr22.txt --arch_cover arch.covering.chr22.txt
 ```
 
 where the examples par.file.txt could be found in the main directory
 
-# Run DAI.seg using EM algorithm
+## Run DAI.seg using EM algorithm
 
 ```bash
 python3 dai.seg.2.py --obs_samples obs.samples.txt --bed test.bed   --HMM_par par.file.txt --EM yes --EM_steps 20  --prepared_file allels.ref.and.obs.chr22.txt --o out.EM.txt --arch_cover arch.covering.chr22.txt
