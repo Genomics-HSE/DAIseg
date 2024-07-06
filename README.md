@@ -57,10 +57,10 @@ DAIseg method is created to detect ancient introgressed segments using unadmixed
 
 * __region.bed__ is file with desired regions
   ```note
- 22 16050000	16697850
- 22	16847850	20509431
- 22	20609431	50364777
- 22	50414777	51244566
+  22	16050000	16697850
+  22	16847850	20509431
+  22	20609431	50364777
+  22	50414777	51244566
   ```
 
 ## Merging 1000GP  and Archaic genomes
