@@ -30,6 +30,8 @@ If you have the files of such types
      #POSITIONS	#REF	#ALT	ANCESTRAL	#OUTGROUP	#ARCHAIC	#OBSERVATIONS
      16050075	A	G	.	0	.	0 0
      16050115	G	A	.	1,0	.	0 0
+     ...
+     21954214	C	T	0	0	0	0 0
      ```
 
 
