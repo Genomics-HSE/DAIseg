@@ -76,6 +76,12 @@ The resulting vcf.gz file is all.chr22.vcf.gz{.tbi}
 
 ## Archaic covering
 
+Add full path to files  of   Altai.Neanderthal, Vindija33.19, Chagyrskaya/Okladnikova to variables n1, n2, n3 in  archaic.covering.sh and run 
+```bash
+./archaic.covering.sh 22 test.bed
+```
+to obtain the window-covering by archaic samples.
+
 
 ## Ancestral alleles
 
@@ -86,7 +92,7 @@ You need  vcf file, lists of samples obs.samples.txt, outgroup.txt, archaic.txt 
  to run  
 
 ```bash
-/new.make.obs.sh 22 all.chr22.vcf.gz obs.samples.txt Outgroup.txt archaic.txt  ./Ancestral.Alleles/hg19.AA.chr22.txt test.bed
+./new.make.obs.sh 22 all.chr22.vcf.gz obs.samples.txt Outgroup.txt archaic.txt  ./Ancestral.Alleles/hg19.AA.chr22.txt test.bed
 ```
 
 and to make observation files obs.neand.chr22.txt, obs.outgroup.chr22.txt
