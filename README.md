@@ -2,8 +2,10 @@
 # DAIseg
 DAIseg method is created to detect ancient introgressed segments using unadmixed outgroup population and several reference archaic genomes.  
 
+
+
 The full description of the used files is in __File.description.md__ 
-Run DAIseg if you have the files obs.samples.txt, region.bed, par.file.txt, arch.covering.chr22.txt, allels.ref.and.obs.chr22.txt. The premaded par.file.txt is in main directory which is corresponds to the scenario of Neanderthal introgression into the Europeans. 
+Run DAIseg if you have the files obs.samples.txt, region.bed, par.file.txt, arch.covering.chr22.txt, allels.ref.and.obs.chr22.txt. The premaded par.file.txt is in main directory which is corresponds to the scenario of Neanderthal introgression into the Europeans. If you want to work only with 1000GP you need to change directory by hg19/grch38 and prepare files
 
 There are two options without EM-algorithm and with EM algorithm. 
 
