@@ -1,7 +1,11 @@
 
 # DAIseg
 DAIseg method is created to detect ancient introgressed segments using unadmixed outgroup population and several reference archaic genomes.  
-The full description of the used files is in __File.description.md__ Run DAIseg if you have the files obs.samples.txt, region.bed, par.file.txt, arch.covering.chr22.txt, allels.ref.and.obs.chr22.txt. There are two options without EM-algorithm and with EM algorithm. 
+
+The full description of the used files is in __File.description.md__ 
+Run DAIseg if you have the files obs.samples.txt, region.bed, par.file.txt, arch.covering.chr22.txt, allels.ref.and.obs.chr22.txt. The premaded par.file.txt is in main directory which is corresponds to the scenario of Neanderthal introgression into the Europeans. 
+
+There are two options without EM-algorithm and with EM algorithm. 
 
 
 # Run DAI.seg without EM algorithm
@@ -12,7 +16,6 @@ The full description of the used files is in __File.description.md__ Run DAIseg 
 python3 dai.seg.2.py --obs_samples obs.samples.txt --bed test.bed   --HMM_par par.file.txt --EM no --prepared_file allels.ref.and.obs.chr22.txt --o out.chr22.txt --arch_cover arch.covering.chr22.txt
 ```
 
-where the examples par.file.txt could be found in the main directory
 
 # Run DAI.seg using EM algorithm
 
