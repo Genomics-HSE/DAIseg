@@ -51,11 +51,11 @@ The resulting vcf.gz file is all.chr22.vcf.gz{.tbi}
 
 ## Make summary file 
 
-You need  vcf file, lists of samples obs.samples.txt, outgroup.txt, archaic.txt and file with [ancestral alleles positions][4]
+You need  vcf file, lists of samples obs.samples.txt, outgroup.txt, archaic.txt and file with ancestral alleles positions
  to run  
 
 ```bash
-./new.make.obs.sh 22 all.chr22.vcf.gz ../samples/obs.samples.txt ../samples/Outgroup.txt ../samples/archaic.txt  ./Ancestral.Alleles/hg19.AA.chr22.txt ./regions/chr22.hg19.bed
+./new.make.obs.sh 22 all.chr22.vcf.gz path.to/observables.list path.to/outgroup.list path.to/archaic.list ./Ancestral.Alleles/hg19.AA.chr22.txt ./regions/chr22.hg19.bed
 ```
 
 
@@ -65,4 +65,4 @@ You need  vcf file, lists of samples obs.samples.txt, outgroup.txt, archaic.txt 
 [1]: http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz 
 [2]: http://cdna.eva.mpg.de/neandertal/Vindija/VCF/
 [3]: http://ftp.eva.mpg.de/neandertal/ChagyrskayaOkladnikov/
-[4]: https://drive.google.com/file/d/1Vw-QEG9uu1trkbGHpDVXhMlbGt-RQhbN/view?usp=sharing
+
