@@ -5,7 +5,7 @@ DAIseg method is created to detect ancient introgressed segments using unadmixed
 
 # Run DAI.seg without EM algorithm
 
-If you have the files obs.samples.txt, region.bed, par.file.txt, arch.covering.chr22.txt, allels.ref.and.obs.chr22.txt (the detailed description see in __File's summary__ section) 
+If you have the files obs.samples.txt, region.bed, par.file.txt, arch.covering.chr22.txt, allels.ref.and.obs.chr22.txt (the detailed description see in __File.description.md__) 
 
 ```bash
 python3 dai.seg.2.py --obs_samples obs.samples.txt --bed test.bed   --HMM_par par.file.txt --EM no --prepared_file allels.ref.and.obs.chr22.txt --o out.chr22.txt --arch_cover arch.covering.chr22.txt
