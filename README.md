@@ -16,7 +16,7 @@ To read more details for files preparation see [readme][2]. To avoid details use
 ```bash
  ./full.preparation.sh hg19 22 file.bed n1 n2 n3 1000GP path.to.list.outgroup.file  path.to.list.obserables.file path.to.list.archaic.file all.chr22.vcf.gz
 ```
-where 1000GP, n1, n2, n3 are [vcf with 1000 Genome project][3], [neanderthal vcfs][4] and [...][5]. 
+where 1000GP, n1, n2, n3 are [vcf with 1000 Genome project][3], [neanderthal vcfs][4] and [chagyrskaya][5] (needed to be splited). 
 
 
 There are two options without EM-algorithm and with EM algorithm. 
