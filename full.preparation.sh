@@ -11,7 +11,9 @@ GP1000=$7
 out=$8
 obs=$9
 arch=${10}
-outfile=${11}
+outfilevcf=${11}
+outtxt=${12}
+
 
 
 
@@ -23,10 +25,10 @@ cd $1
 
 ./ancestral.alleles.sh ${CHR} ${GP1000}
 
-./new.panel.preparation.Linux.sh ${CHR} ${out} ${obs} ${bed} ${GP1000} ${n1} ${n2} ${n3} ${outfile}
+./new.panel.preparation.Linux.sh ${CHR} ${out} ${obs} ${bed} ${GP1000} ${n1} ${n2} ${n3} ${outfilevcf}
 
 
-./new.make.obs.sh ${CHR} ${outfile} ${obs} ${out} ${arch}  ./Ancestral.Alleles/hg19.AA.chr${CHR}.txt ./regions/chr${CHR}.hg19.bed
+./new.make.obs.sh ${CHR} ${outfilevcf} ${obs} ${out} ${arch}  ./Ancestral.Alleles/hg19.AA.chr${CHR}.txt ./regions/chr${CHR}.hg19.bed ${outtxt}
 
 cd ../
 
