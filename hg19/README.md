@@ -16,7 +16,7 @@ The goal is to create __hg19.AA.chr22.txt__ file  in created directory Ancestral
 
 If you working with hg19 the list of acestral allels could be extract from vcf [1000GP panel][1]. Run
 ```bash
-./ancestral.alleles.sh 22 way.to.1000GP.chr22
+./ancestral.alleles.sh 22 path.to/1000GP.chr22
 ```
 
 
