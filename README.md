@@ -69,6 +69,8 @@ DAIseg method is created to detect ancient introgressed segments using unadmixed
      ```
 
 ## Merging 1000GP  and Archaic genomes
+
+
 Download [1000GP panel][1] and  archaic samples  [Link1][2] and [Link2][3]. Make .txt files with samples' names  obs.samples.txt, outgroup.txt, archaic.txt
 
 Add full path to files  of 1000GP,  Altai.Neanderthal, Vindija33.19, Chagyrskaya/Okladnikova to variables NAME1000 and n1, n2, n3 in  panel.preparation.*.sh and run 
