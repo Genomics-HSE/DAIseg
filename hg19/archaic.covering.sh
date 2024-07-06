@@ -23,3 +23,4 @@ rm 1.txt 2.txt 3.txt
 
 
 python3 archaic.covering.py ${bed} chr${CHR}.archaic.txt ${CHR}
+rm chr${CHR}.archaic.txt
