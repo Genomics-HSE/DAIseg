@@ -16,7 +16,7 @@ To read more details for files preparation see [readme][2]. To avoid details use
 ```bash
  ./full.preparation.sh hg19 22 file.bed n1 n2 n3 1000GP path.to.list.outgroup.file  path.to.list.obserables.file path.to.list.archaic.file all.chr22.vcf.gz
 ```
-
+where 1000GP, n1, n2, n3 are [vcf with 1000 Genome project][3], [neanderthal vcfs][4] and [...][5]. 
 
 
 There are two options without EM-algorithm and with EM algorithm. 
@@ -57,7 +57,7 @@ to obtain estimations of the  coalescent times and run DAIseg. Here par.file.txt
 
 
 
-[1]: http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz 
-[2]: http://cdna.eva.mpg.de/neandertal/Vindija/VCF/
-[3]: http://ftp.eva.mpg.de/neandertal/ChagyrskayaOkladnikov/
-[4]: https://drive.google.com/file/d/1Vw-QEG9uu1trkbGHpDVXhMlbGt-RQhbN/view?usp=sharing
+[3]: http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz 
+[4]: http://cdna.eva.mpg.de/neandertal/Vindija/VCF/
+[5]: http://ftp.eva.mpg.de/neandertal/ChagyrskayaOkladnikov/
+
