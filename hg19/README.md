@@ -1,6 +1,8 @@
 
 # Preparation connected with hg19
 
+Choose this directory.
+
 ## Archaic covering 
 The goal is to create __arch.covering.chr22.txt__ file with the window-covering by archaic samples. 
 Add full path to files  of   Altai.Neanderthal, Vindija33.19, Chagyrskaya/Okladnikova to variables n1, n2, n3 and run 
