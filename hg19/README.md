@@ -53,7 +53,7 @@ You need  vcf file, lists of samples obs.samples.txt, outgroup.txt, archaic.txt 
  to run  
 
 ```bash
-./new.make.obs.sh 22 all.chr22.vcf.gz obs.samples.txt Outgroup.txt archaic.txt  ./Ancestral.Alleles/hg19.AA.chr22.txt ./regions/chr22.hg19.bed
+./new.make.obs.sh 22 all.chr22.vcf.gz ../samples/obs.samples.txt ../samples/Outgroup.txt ../samples/archaic.txt  ./Ancestral.Alleles/hg19.AA.chr22.txt ./regions/chr22.hg19.bed
 ```
 
 
