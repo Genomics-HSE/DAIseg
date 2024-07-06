@@ -3,7 +3,23 @@
 DAIseg method is created to detect ancient introgressed segments using unadmixed outgroup population and several reference archaic genomes. 
 
 # Quick run
-If you have the files of such types 
+
+
+## Run DAI.seg without EM algorithm
+```bash
+python3 dai.seg.2.py --obs_samples obs.samples.txt --bed test.bed   --HMM_par par.file.txt --EM no --prepared_file allels.ref.and.obs.chr22.txt --o out.chr22.txt --arch_cover arch.covering.chr22.txt
+```
+
+where the examples par.file.txt could be found in the main directory
+
+## Run DAI.seg using EM algorithm
+
+```bash
+python3 dai.seg.2.py --obs_samples obs.samples.txt --bed test.bed   --HMM_par par.file.txt --EM yes --EM_steps 20  --prepared_file allels.ref.and.obs.chr22.txt --o out.EM.txt --arch_cover arch.covering.chr22.txt
+```
+to obtain estimations of the  coalescent times and run DAIseg. Here par.file.txt is used as the initial guess for EM algorithm.
+
+if you have the files of such types 
 
 * __region.bed__ is file with desired regions
   ```note
@@ -35,20 +51,6 @@ If you have the files of such types
      ```
 
 
-
-## Run DAI.seg without EM algorithm
-```bash
-python3 dai.seg.2.py --obs_samples obs.samples.txt --bed test.bed   --HMM_par par.file.txt --EM no --prepared_file allels.ref.and.obs.chr22.txt --o out.chr22.txt --arch_cover arch.covering.chr22.txt
-```
-
-where the examples par.file.txt could be found in the main directory
-
-## Run DAI.seg using EM algorithm
-
-```bash
-python3 dai.seg.2.py --obs_samples obs.samples.txt --bed test.bed   --HMM_par par.file.txt --EM yes --EM_steps 20  --prepared_file allels.ref.and.obs.chr22.txt --o out.EM.txt --arch_cover arch.covering.chr22.txt
-```
-to obtain estimations of the  coalescent times and run DAIseg. Here par.file.txt is used as the initial guess for EM algorithm.
 
 
 
