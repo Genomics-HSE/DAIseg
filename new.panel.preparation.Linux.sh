@@ -106,12 +106,12 @@ echo "DAIseg: Getting the list of covered archaic genomes to count the archaic  
 
 
 
-bcftools query -R ${bed} -f '%POS\n' ${n1} > 1.txt
-bcftools query -R ${bed} -f '%POS\n' ${n2} > 2.txt
-bcftools query -R ${bed} -f '%POS\n' ${n3} > 3.txt
-cat 1.txt 2.txt 3.txt|sort -u > chr${CHR}.archaic.txt
+#bcftools query -R ${bed} -f '%POS\n' ${n1} > 1.txt
+#bcftools query -R ${bed} -f '%POS\n' ${n2} > 2.txt
+#bcftools query -R ${bed} -f '%POS\n' ${n3} > 3.txt
+#cat 1.txt 2.txt 3.txt|sort -u > chr${CHR}.archaic.txt
 
-rm 1.txt 2.txt 3.txt
+#rm 1.txt 2.txt 3.txt
 
 
-python3 archaic.covering.py ${bed} chr${CHR}.archaic.txt ${CHR}
+#python3 archaic.covering.py ${bed} chr${CHR}.archaic.txt ${CHR}
