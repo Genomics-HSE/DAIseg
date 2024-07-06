@@ -30,7 +30,12 @@ to obtain estimations of the  coalescent times and run DAIseg. Here par.file.txt
 
 
 
+
+
+# Whole pipeline
 ## Merging 1000GP  and Archaic genomes
+
+If you would like to work with 1000GP and archaic samples only we propose you pipeline briefly. 
 
 
 Download [1000GP panel][1] and  archaic samples  [Link1][2] and [Link2][3]. Make .txt files with samples' names  obs.samples.txt, outgroup.txt, archaic.txt
