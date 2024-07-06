@@ -74,6 +74,12 @@ Add full path to files  of 1000GP,  Altai.Neanderthal, Vindija33.19, Chagyrskaya
  
 The resulting vcf.gz file is all.chr22.vcf.gz{.tbi}
 
+## Ancestral alleles
+
+If you working with hg19 the list of acestral allels could be extract from vcf [1000GP panel][1].
+
+
+
 ## Archaic covering
 
 Add full path to files  of   Altai.Neanderthal, Vindija33.19, Chagyrskaya/Okladnikova to variables n1, n2, n3 in  archaic.covering.sh and run 
@@ -83,7 +89,7 @@ Add full path to files  of   Altai.Neanderthal, Vindija33.19, Chagyrskaya/Okladn
 to obtain the window-covering by archaic samples.
 
 
-## Ancestral alleles
+
 
 
 ## Make observations 
