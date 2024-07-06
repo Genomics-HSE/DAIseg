@@ -32,8 +32,8 @@ DAIseg method is created to detect ancient introgressed segments using unadmixed
   
  * __output.txt__ is a  file 
     ```note
-    [[t_1,t_2], [t_3,t_4], [t_5,t_6]]
-    [[t'_1,t'_2], [t'_3,t'_4], [t'_5,t'_6]]
+    HG01510    0    [[t_1,t_2], [t_3,t_4], [t_5,t_6]]
+    HG01510    1    [[t'_1,t'_2], [t'_3,t'_4], [t'_5,t'_6]]
     ...
     ...
     ```
