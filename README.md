@@ -50,7 +50,16 @@ if you have the files of such types
      21954214	C	T	0	0	0	0 0
      ```
 
-
+* __arch.covering.chr22.txt__
+  ```note
+  -0.001
+  -0.001
+  ...
+  0.022
+  0.001
+  ...
+  0.999
+  ```
 
 
 
