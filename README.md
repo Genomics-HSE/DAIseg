@@ -39,11 +39,6 @@ DAIseg method is created to detect ancient introgressed segments using unadmixed
     ```
     where each two lines correspond to the one diploid sample from obs.samples.txt.
 
-*  __pos.chr22.txt__ first-last positions of desired region
-    ```note
-    start_chr end_chr
-    ```
-
 
 *  __hg19.AA.chr22.txt__  file with information about ancestral allels ("-1"=="no information").
      ```note
