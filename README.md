@@ -7,9 +7,17 @@ DAIseg method is created to detect ancient introgressed segments using unadmixed
 The full description of the used files is [here][1]
 
 
+
 Run DAIseg if you have the files obs.samples.txt, region.bed, par.file.txt, arch.covering.chr22.txt, allels.ref.and.obs.chr22.txt. The premaded par.file.txt is in main directory which is corresponds to the scenario of Neanderthal introgression into the Europeans. 
 
-!!! If you want to work only with 1000GP you need to change directory by hg19/grch38 and prepare files firstly.
+# Preparations of files
+
+To read more details for files preparation see [readme][2]. To avoid details use script 
+```bash
+ ./full.preparation.sh hg19 22 file.bed n1 n2 n3 1000GP path.to.list.outgroup.file  path.to.list.obserables.file path.to.list.archaic.file all.chr22.vcf.gz
+```
+
+
 
 There are two options without EM-algorithm and with EM algorithm. 
 
@@ -35,7 +43,7 @@ to obtain estimations of the  coalescent times and run DAIseg. Here par.file.txt
 
 
 [1]: https://github.com/Genomics-HSE/DAIseg/blob/main/File.types.md
-
+[2]: https://github.com/Genomics-HSE/DAIseg/blob/main/hg19/README.md
 
 
 
