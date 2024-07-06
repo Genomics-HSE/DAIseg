@@ -33,6 +33,26 @@ to obtain estimations of the  coalescent times and run DAIseg. Here par.file.txt
 
 
 # Whole pipeline
+
+## Archaic covering 
+The goal is to create __arch.covering.chr22.txt__ file with the window-covering by archaic samples. 
+Add full path to files  of   Altai.Neanderthal, Vindija33.19, Chagyrskaya/Okladnikova to variables n1, n2, n3 in  archaic.covering.sh and run 
+```bash
+./archaic.covering.sh 22 test.bed
+```
+
+
+## Ancestral alleles
+The goal is to create __hg19.AA.chr22.txt__ file  in created directory Ancestral.Allels with known ancestral alleles in positions.
+
+If you working with hg19 the list of acestral allels could be extract from vcf [1000GP panel][1]. Run
+```bash
+./ancestral.alleles.sh 22 way.to.1000GP.chr22
+```
+
+
+
+
 ## Merging 1000GP  and Archaic genomes
 
 If you would like to work with 1000GP and archaic samples only we propose you pipeline briefly. 
@@ -48,25 +68,13 @@ Add full path to files  of 1000GP,  Altai.Neanderthal, Vindija33.19, Chagyrskaya
  
 The resulting vcf.gz file is all.chr22.vcf.gz{.tbi}
 
-## Ancestral alleles
-
-If you working with hg19 the list of acestral allels could be extract from vcf [1000GP panel][1]. Run
-```bash
-./ancestral.alleles.sh 22 way.to.1000GP.chr22
-```
-
-to make file hg19.AA.chr22.txt in created directory Ancestral.Allels.
 
 
 
 
-## Archaic covering (__arch.covering.chr22.txt__)
 
-Add full path to files  of   Altai.Neanderthal, Vindija33.19, Chagyrskaya/Okladnikova to variables n1, n2, n3 in  archaic.covering.sh and run 
-```bash
-./archaic.covering.sh 22 test.bed
-```
-to obtain   the window-covering by archaic samples.
+
+
 
 
 
