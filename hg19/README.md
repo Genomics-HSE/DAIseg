@@ -5,7 +5,7 @@
 The goal is to create __arch.covering.chr22.txt__ file with the window-covering by archaic samples. 
 Add full path to files  of   Altai.Neanderthal, Vindija33.19, Chagyrskaya/Okladnikova to variables n1, n2, n3 and run 
 ```bash
-./archaic.covering.sh 22 test.bed n1 n2 n3
+./archaic.covering.sh 22 ./regions/chr22.hg19.bed n1 n2 n3
 ```
 
 
@@ -30,7 +30,7 @@ Download [1000GP panel][1] and  archaic samples  [Link1][2] and [Link2][3]. Make
 Add full path to files  of 1000GP,  Altai.Neanderthal, Vindija33.19, Chagyrskaya/Okladnikova to parameters 1000GP and n1, n2, n3  and run 
 
 ```bash
-./new.panel.preparation.Linux.sh 22 Outgroup.txt obs.samples.txt test.bed 1000GP n1 n2 n3 all.chr22.vcf.gz
+./new.panel.preparation.Linux.sh 22 ../samples/Outgroup.txt ../samples/obs.samples.txt ./regions/chr22.hg19.bed 1000GP n1 n2 n3 all.chr22.vcf.gz
 ```
  
 The resulting vcf.gz file is all.chr22.vcf.gz{.tbi}
