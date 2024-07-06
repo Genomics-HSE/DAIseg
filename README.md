@@ -77,7 +77,7 @@ The resulting vcf.gz file is all.chr22.vcf.gz{.tbi}
 
 If you working with hg19 the list of acestral allels could be extract from vcf [1000GP panel][1]. Run
 ```bash
-./ancestral.alleles.sh 22 test.bed
+./ancestral.alleles.sh 22 way.to.1000GP.chr22
 ```
 
 to make file hg19.AA.chr22.txt.
