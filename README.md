@@ -60,13 +60,13 @@ to make file hg19.AA.chr22.txt in created directory Ancestral.Allels.
 
 
 
-## Archaic covering
+## Archaic covering (__arch.covering.chr22.txt__)
 
 Add full path to files  of   Altai.Neanderthal, Vindija33.19, Chagyrskaya/Okladnikova to variables n1, n2, n3 in  archaic.covering.sh and run 
 ```bash
 ./archaic.covering.sh 22 test.bed
 ```
-to obtain the window-covering by archaic samples.
+to obtain   the window-covering by archaic samples.
 
 
 
