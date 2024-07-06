@@ -10,6 +10,8 @@ arch=$5
 aa=$6
 bed=$7
 
+outtxt=$8
+
 
 bcftools query -f '%POS\t%REF\t%ALT\n' all.chr22.vcf.gz>positions.chr${CHR}.txt
 
@@ -34,7 +36,7 @@ rm obs.chr${CHR}.ingroup.txt
 rm 3.chr${CHR}.txt
 
 
-python3 obs2.py ${CHR}  temp.allels.ref.and.obs.chr${CHR}.txt ${aa} ${bed}
+python3 obs2.py ${CHR}  temp.allels.ref.and.obs.chr${CHR}.txt ${aa} ${bed} ${8}
 
 rm temp.allels.ref.and.obs.chr${CHR}.txt
 
