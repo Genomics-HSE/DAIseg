@@ -4,11 +4,10 @@ DAIseg method is created to detect ancient introgressed segments using unadmixed
 
 
 
-The full description of the used files is [here][1]
+The description of the used files is [here][1]
 
 
 
-Run DAIseg if you have the files obs.samples.txt, region.bed, par.file.txt, arch.covering.chr22.txt, allels.ref.and.obs.chr22.txt. The premaded par.file.txt is in main directory which is corresponds to the scenario of Neanderthal introgression into the Europeans. 
 
 # Preparations of files
 
