@@ -3,11 +3,13 @@
 #change the following names and directories
 CHR=$1
 bed=$2
+n1=$3
+n2=$4
+n3=$5
 
-
-n1=/media/scglab/T7/Work/data/neand/33.19/chr${CHR}_mq25_mapab100.vcf.gz
-n2=/media/scglab/T7/Work/data/neand/altai/chr${CHR}_mq25_mapab100.vcf.gz
-n3=/media/scglab/T7/Work/data/neand/ChagyrskayaOkladnikov/split.${CHR}.vcf.gz
+#n1=/media/scglab/T7/Work/data/neand/33.19/chr${CHR}_mq25_mapab100.vcf.gz
+#n2=/media/scglab/T7/Work/data/neand/altai/chr${CHR}_mq25_mapab100.vcf.gz
+#n3=/media/scglab/T7/Work/data/neand/ChagyrskayaOkladnikov/split.${CHR}.vcf.gz
 
 
 bcftools query -R ${bed} -f '%POS\n' ${n1} > 1.txt
