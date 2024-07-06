@@ -74,6 +74,11 @@ Add full path to files  of 1000GP,  Altai.Neanderthal, Vindija33.19, Chagyrskaya
  
 The resulting vcf.gz file is all.chr22.vcf.gz{.tbi}
 
+## Archaic covering
+
+
+## Ancestral alleles
+
 
 ## Make observations 
 
@@ -81,7 +86,7 @@ You need  vcf file, lists of samples obs.samples.txt, outgroup.txt, archaic.txt 
  to run  
 
 ```bash
-./make.obs.sh 22 all.chr22.vcf.gz obs.samples.txt Outgroup.txt archaic.txt  POS.AA.chr22.txt
+/new.make.obs.sh 22 all.chr22.vcf.gz obs.samples.txt Outgroup.txt archaic.txt  ./Ancestral.Alleles/hg19.AA.chr22.txt test.bed
 ```
 
 and to make observation files obs.neand.chr22.txt, obs.outgroup.chr22.txt
