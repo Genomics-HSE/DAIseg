@@ -50,7 +50,7 @@ if you have the files of such types
      21954214	C	T	0	0	0	0 0
      ```
 
-* __arch.covering.chr22.txt__
+* __arch.covering.chr22.txt__ file with window covering by neanderthals (-0.001 means that there is no information in this window, 1.0 means the there is some information in each positions of the window from at least one archaic sample )
   ```note
   -0.001
   -0.001
