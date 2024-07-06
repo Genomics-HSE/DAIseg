@@ -69,7 +69,7 @@ Download [1000GP panel][1] and  archaic samples  [Link1][2] and [Link2][3]. Make
 Add full path to files  of 1000GP,  Altai.Neanderthal, Vindija33.19, Chagyrskaya/Okladnikova to variables NAME1000 and n1, n2, n3 in  panel.preparation.*.sh and run 
 
 ```bash
-./panel.preparation.Linux.sh 22 obs.samples.txt outgroup.txt
+./new.panel.preparation.Linux.sh 22 Outgroup.txt obs.samples.txt test.bed all.chr22.vcf.gz
 ```
  
 The resulting vcf.gz file is all.chr22.vcf.gz{.tbi}
