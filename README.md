@@ -61,7 +61,7 @@ DAIseg method is created to detect ancient introgressed segments using unadmixed
   22	20609431	50364777
   22	50414777	51244566
   ```
-* __allels.ref.and.obs.chr${CHR}.txt__ is a file with all needed informations such as REF/ALT alleles, Ancestral Allele, Outgroup and Archaic Alleles, and Observations
+* __allels.ref.and.obs.chr22.txt__ is a file with all needed informations such as REF/ALT alleles, Ancestral Allele, Outgroup and Archaic Alleles, and Observations
      ```note
      #POSITIONS	#REF	#ALT	ANCESTRAL	#OUTGROUP	#ARCHAIC	#OBSERVATIONS
      16050075	A	G	.	0	.	0 0
