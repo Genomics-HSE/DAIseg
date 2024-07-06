@@ -13,9 +13,13 @@ The description of the used files is [here][1]
 
 To read more details for files preparation see [readme][2]. To avoid details use script 
 ```bash
- ./full.preparation.sh hg19 22 file.bed n1 n2 n3 1000GP path.to.outgroup.list  path.to.obserables.list path.to.archaic.list name.out_vcf name.out_txt
+ ./full.preparation.sh hg19 22 path.to/file.bed n1 n2 n3 1000GP path.to/outgroup.list  path.to/obserables.list path.to/archaic.list name.out_vcf name.out_txt
 ```
-where 1000GP, n1, n2, n3 are [vcf with 1000 Genome project][3], [neanderthal vcfs][4] and [chagyrskaya][5] (needed to be splited). 
+where 1000GP, n1, n2, n3 are [vcf with 1000 Genome project][3], [neanderthal vcfs][4] and [chagyrskaya][5] (needed to be splited). Write full path to the list of samples path.to.outgroup.list,  path.to.obserables.list. path.to.archaic.list
+name.out_vcf name.out_txt are the names of the resulting files(be saved in the hg19 directory).
+
+
+
 
 
 There are two options without EM-algorithm and with EM algorithm. 
