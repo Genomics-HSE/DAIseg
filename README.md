@@ -45,11 +45,10 @@ DAIseg method is created to detect ancient introgressed segments using unadmixed
     ```
 
 
-*  __POS.AA.chr22.txt__  file with information about ancestral allels ("-1"=="no information").
+*  __hg19.AA.chr22.txt__  file with information about ancestral allels ("-1"=="no information").
      ```note
-     position1 -1
-     position2 A
-     position3 C
+     position_0 A
+     position_1 C
      ...
      ```
    The link on the [ancestral alles files based on hg19][4] 
@@ -76,7 +75,13 @@ The resulting vcf.gz file is all.chr22.vcf.gz{.tbi}
 
 ## Ancestral alleles
 
-If you working with hg19 the list of acestral allels could be extract from vcf [1000GP panel][1].
+If you working with hg19 the list of acestral allels could be extract from vcf [1000GP panel][1]. Run
+```bash
+./ancestral.alleles.sh 22 test.bed
+```
+
+to make file hg19.AA.chr22.txt.
+
 
 
 
