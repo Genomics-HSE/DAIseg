@@ -10,7 +10,7 @@
 
    ```
 
-     By default, the  time values are  550.000, 70.000, 55.000, 55.000 are used to make  initiall guess for the EM algorithm on Step 2. These values are good to find archqic segments but using EM algorithm allows to find short segments.
+
 
 
 *  __all.chr22.vcf.gz{.tbi}__ files containing all reference genomes (Outgroup and Archaic) and observable samples with snps only (excluding indels, deletions etc.). The main reason of it is to avoid inconsistencies.
@@ -52,6 +52,9 @@
    t_intr^c    #coalescent time of archaic segments in modern genome with neanderthal samples
    t_intr #introgression time 
    0.025    #admixture proportion of archaic introgression
+
+
+     By default, the  time values are  550.000, 70.000, 55.000, 55.000 are used to make  initiall guess for the EM algorithm on Step 2. These values are good to find archqic segments but using EM algorithm allows to find short segments.
 
 * __allels.ref.and.obs.chr22.txt__ is a file with all needed informations such as REF/ALT alleles, Ancestral Allele, Outgroup and Archaic Alleles, and Observations (haplotypes are written in columns )
      ```note
