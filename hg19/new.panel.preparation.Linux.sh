@@ -16,15 +16,15 @@ bcftools query -R ${bed} -f '%CHROM\t%POS\n' ${NAME1000} > 1000GP.pos.chr22.txt
 
 
 echo "DAIseg: Extracts non-1000GP positions that has alternates in archaic..."
-bcftools query -T ^1000GP.pos.chr22.txt -R ${bed} -i 'ALT!="."' -f '%CHROM\t%POS\n' ${n1} > 1.txt
-bcftools query -T ^1000GP.pos.chr22.txt -R ${bed} -i 'ALT!="."' -f '%CHROM\t%POS\n' ${n2} > 2.txt
-bcftools query -T ^1000GP.pos.chr22.txt -R ${bed} -i 'ALT!="."' -f '%CHROM\t%POS\n' ${n3} > 3.txt
+bcftools query -T ^1000GP.pos.chr${CHR}.txt -R ${bed} -i 'ALT!="."' -f '%CHROM\t%POS\n' ${n1} > 1.txt
+bcftools query -T ^1000GP.pos.chr${CHR}.txt -R ${bed} -i 'ALT!="."' -f '%CHROM\t%POS\n' ${n2} > 2.txt
+bcftools query -T ^1000GP.pos.chr${CHR}.txt -R ${bed} -i 'ALT!="."' -f '%CHROM\t%POS\n' ${n3} > 3.txt
 
 #join extra positions
 cat 1.txt 2.txt 3.txt| sort -u >extra.pos.chr${CHR}.txt
 
 echo "DAIseg: join extra positions with 1000GP positions..."
-cat  1000GP.pos.chr22.txt extra.pos.chr22.txt|sort -u> positions.chr${CHR}.txt
+cat  1000GP.pos.chr22.txt extra.pos.chr${CHR}.txt|sort -u> positions.chr${CHR}.txt
 
 
 #restrict 
