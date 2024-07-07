@@ -102,20 +102,3 @@ rm samples.for.hmm.txt
 rm archaic.merged.chr${CHR}.txt
 rm 1000GP.pos.chr${CHR}.txt
 
-
-echo "DAIseg: Getting the list of covered archaic genomes to count the archaic  covering of each HMM's window"
-
-
-
-
-
-
-#bcftools query -R ${bed} -f '%POS\n' ${n1} > 1.txt
-#bcftools query -R ${bed} -f '%POS\n' ${n2} > 2.txt
-#bcftools query -R ${bed} -f '%POS\n' ${n3} > 3.txt
-#cat 1.txt 2.txt 3.txt|sort -u > chr${CHR}.archaic.txt
-
-#rm 1.txt 2.txt 3.txt
-
-
-#python3 archaic.covering.py ${bed} chr${CHR}.archaic.txt ${CHR}
