@@ -9,12 +9,6 @@ n2=$7
 n3=$8
 panel=$9
 
-#NAME1000=/media/scglab/T7/Work/Data/1000GP/${CHR}/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz #name of the 1000GP vcf files
-#n1=/media/scglab/T7/Work/data/neand/33.19/chr${CHR}_mq25_mapab100.vcf.gz
-#n2=/media/scglab/T7/Work/data/neand/altai/chr${CHR}_mq25_mapab100.vcf.gz
-#n3=/media/scglab/T7/Work/data/neand/ChagyrskayaOkladnikov/split.${CHR}.vcf.gz
-
-
 cat $3 $2 > samples.for.hmm.txt
 
 echo "DAIseg: Extracting the positions of 1000GP..."
