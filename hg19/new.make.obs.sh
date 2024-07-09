@@ -13,11 +13,11 @@ bed=$7
 outtxt=$8
 
 
-bcftools query -f '%POS\t%REF\t%ALT\n' all.chr22.vcf.gz>positions.chr${CHR}.txt
+bcftools query -f '%POS\t%REF\t%ALT\n' ${panelfinal}>positions.chr${CHR}.txt
 
-bcftools query -S ${out} -f '[%GT]\n' all.chr22.vcf.gz|awk '{for(i=1;i<=length($0);i++){a[substr($0,i,1)]=1} for(i in a){printf("%s",i)} print "";delete a}'|sed 's/|//g' |sed 's|/||g' |sed -e 's/\.//g'|sed 's/^$/\./' >al.chr${CHR}.outgroup.txt
+bcftools query -S ${out} -f '[%GT]\n' ${panelfinal}|awk '{for(i=1;i<=length($0);i++){a[substr($0,i,1)]=1} for(i in a){printf("%s",i)} print "";delete a}'|sed 's/|//g' |sed 's|/||g' |sed -e 's/\.//g'|sed 's/^$/\./' >al.chr${CHR}.outgroup.txt
 
-bcftools query -S ${arch} -f '[%GT]\n' all.chr22.vcf.gz|awk '{for(i=1;i<=length($0);i++){a[substr($0,i,1)]=1} for(i in a){printf("%s",i)} print "";delete a}'|sed 's|/||g' |sed 's/|//g'|sed -e 's/\.//g'|sed 's/^$/\./' >al.chr${CHR}.archaic.txt
+bcftools query -S ${arch} -f '[%GT]\n' ${panelfinal}|awk '{for(i=1;i<=length($0);i++){a[substr($0,i,1)]=1} for(i in a){printf("%s",i)} print "";delete a}'|sed 's|/||g' |sed 's/|//g'|sed -e 's/\.//g'|sed 's/^$/\./' >al.chr${CHR}.archaic.txt
 
 bcftools query -S ${eu}  -f '[%GT ]\n'  ${panelfinal} |sed  's/|/ /g'|sed 's|/| |g' >  obs.chr${CHR}.ingroup.txt
 
