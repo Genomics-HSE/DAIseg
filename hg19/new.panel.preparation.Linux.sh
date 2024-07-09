@@ -12,7 +12,7 @@ panel=$9
 cat $3 $2 > samples.for.hmm.txt
 
 echo "DAIseg: Extracting the positions of 1000GP..."
-bcftools query -R ${bed} -f '%CHROM\t%POS\n' ${NAME1000} > 1000GP.pos.chr22.txt
+bcftools query -R ${bed} -f '%CHROM\t%POS\n' ${NAME1000} > 1000GP.pos.chr${CHR}.txt
 
 
 echo "DAIseg: Extracts non-1000GP positions that has alternates in archaic..."
@@ -24,7 +24,7 @@ bcftools query -T ^1000GP.pos.chr${CHR}.txt -R ${bed} -i 'ALT!="."' -f '%CHROM\t
 cat 1.txt 2.txt 3.txt| sort -u >extra.pos.chr${CHR}.txt
 
 echo "DAIseg: join extra positions with 1000GP positions..."
-cat  1000GP.pos.chr22.txt extra.pos.chr${CHR}.txt|sort -u> positions.chr${CHR}.txt
+cat  1000GP.pos.chr${CHR}.txt extra.pos.chr${CHR}.txt|sort -u> positions.chr${CHR}.txt
 
 
 #restrict 
