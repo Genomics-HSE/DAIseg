@@ -105,7 +105,7 @@ def run_daiseg(lmbd_opt,seq, n_st, idx, start, ar_cover):
     for k in range(N):
        for j in range(len(tracts_HMM[k])):
            tracts_HMM[k][j][0]= L * tracts_HMM[k][j][0]+start
-           tracts_HMM[k][j][1]= L * tracts_HMM[k][j][1]+start-1
+           tracts_HMM[k][j][1]= L * (tracts_HMM[k][j][1]+1)+start-1
 
     return tracts_HMM
 
