@@ -24,7 +24,7 @@ def alpha_scaled_opt_gaps(a,b, b_mas, o, p, gaps, cover):
     
     alpha = np.zeros((N, len(o)))
     if cover[0]>cover_cut:
-        alpha[:,0] = b_mas[int(cover[0]*10),i, o[0][0],o[0][1]] 
+        alpha[:,0] = b_mas[int(cover[0]*10),: , o[0][0],o[0][1]] * p
     else:
     
         alpha[:, 0] = b[:, o[0][0]] * p
