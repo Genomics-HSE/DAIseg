@@ -33,14 +33,14 @@ There are two options without EM-algorithm and with EM algorithm.
 
 
 ```bash
-python3 dai.seg.2.py --obs_samples path.to/obserables.list --bed path.to/file.bed   --HMM_par par.file.txt --EM no --prepared_file ./hg19/name.out_txt --o out.chr22.txt --arch_cover ./hg19/arch.covering.chr22.txt
+python3 dai.seg.py --obs_samples path.to/obserables.list --bed path.to/file.bed   --HMM_par par.file.txt --EM no --prepared_file ./hg19/name.out_txt --o out.chr22.txt --arch_cover ./hg19/arch.covering.chr22.txt
 ```
 
 
 # Run DAI.seg using EM algorithm
 
 ```bash
-python3 dai.seg.2.py --obs_samples path.to/obserables.list --bed path.to/file.bed   --HMM_par par.file.txt --EM yes --EM_steps 20  --prepared_file ./hg19/allels.ref.and.obs.chr22.txt --o out.EM.txt --arch_cover ./hg19/arch.covering.chr22.txt
+python3 dai.seg.py --obs_samples path.to/obserables.list --bed path.to/file.bed   --HMM_par par.file.txt --EM yes --EM_steps 20  --prepared_file ./hg19/allels.ref.and.obs.chr22.txt --o out.EM.txt --arch_cover ./hg19/arch.covering.chr22.txt
 ```
 to obtain estimations of the  coalescent times and run DAIseg. Here par.file.txt is used as the initial guess for EM algorithm.
 
