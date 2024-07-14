@@ -1,4 +1,4 @@
-import HMM2
+import HMM
 import numpy as np
 from numpy import linalg as LNG 
 import math
@@ -11,7 +11,7 @@ import useful as usfl
 
 N=2 
 # each window is covered by cover[t] parameter which in [-0.001...0.999]. Cover_cut remove windows with low covering and transforms method to Skov. 
-cover_cut = 0.5 
+cover_cut = 0.8 
 
 #transitions and emissions in case of gaps in observable chromosome (centromeres/telomeres), not archaic gaps. 
 a_gaps=np.identity(N)
@@ -180,9 +180,9 @@ def new_lambda_af_gaps(O, Gamma, gaps):
 def E_step_gaps(cut,  p, O, n_states, mu,rr, lambda_old, gaps, cover):
 
    
-    b_Skov = HMM2.initBwN(cut, lambda_old[0:3], n_states)
-    a = HMM2.initA(cut,rr, lambda_old[4]/(mu*cut), lambda_old[3])
-    b_our_mas = np.array([HMM2.initB_arch_cover(mu,cut, lambda_old, n_states, 0.1+i*0.1) for i in range(10)])
+    b_Skov = HMM.initBwN(cut, lambda_old[0:3], n_states)
+    a = HMM.initA(cut,rr, lambda_old[4]/(mu*cut), lambda_old[3])
+    b_our_mas = np.array([HMM.initB_arch_cover(mu,cut, lambda_old, n_states, 0.1+i*0.1) for i in range(10)])
     
 
     
