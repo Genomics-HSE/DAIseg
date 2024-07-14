@@ -180,9 +180,9 @@ def new_lambda_af_gaps(O, Gamma, gaps):
 def E_step_gaps(cut,  p, O, n_states, mu,rr, lambda_old, gaps, cover):
 
    
-    b_Skov = HMM2.initBwN(cut, lambda_old[0:3], n_states)
-    a = HMM2.initA(cut,rr, lambda_old[4]/(mu*cut), lambda_old[3])
-    b_our_mas = np.array([HMM2.initB_arch_cover(mu,cut, lambda_old, n_states, 0.1+i*0.1) for i in range(10)])
+    b_Skov = HMM.initBwN(cut, lambda_old[0:3], n_states)
+    a = HMM.initA(cut,rr, lambda_old[4]/(mu*cut), lambda_old[3])
+    b_our_mas = np.array([HMM.initB_arch_cover(mu,cut, lambda_old, n_states, 0.1+i*0.1) for i in range(10)])
     
 
     
