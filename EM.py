@@ -1,4 +1,4 @@
-import HMM2
+import HMM
 import numpy as np
 from numpy import linalg as LNG 
 import math
