@@ -292,3 +292,44 @@ def tracts_eu(tr_nd, seq_length):
       
     return result    
 
+def noND_txt(ts_tree, n_ref_pop, n_eu):
+    f_names = ['./Skov'+str(i)+'.txt' for i in range(n_eu)]
+
+
+    for i in range(n_eu):
+        with open(f_names[i], "w") as file:
+            file.write("chrom  pos     ancestral_base  genotype\n")
+            for v in ts_tree.variants():       
+                flag = False
+                inx=[k+n_eu for k in range(n_ref_pop)]
+                for j in inx:
+                    if abs(v.genotypes[j]-v.genotypes[i])==0:
+                        flag = True
+                        break                
+
+                if flag == False and v.genotypes[i] == 1:              
+                    file.write('chr1   '+str(int(v.position))+'    0               1\n')
+
+
+def read_noND(cutoff, n_eu):
+
+    f2_names = ['./Skov/Skov.result.'+str(i)+'.hap1.txt' for i in range(n_eu)]
+    tracts_skov_neand = []
+    for j in range(n_eu):
+        
+        with open(f2_names[j],'r') as f:
+            lines = f.readlines()
+        for i in range(len(lines)):
+            lines[i] = lines[i].split('\t')
+        lines2=[]    
+        for i in range(len(lines)):
+           
+            if 'Archaic' in lines[i] and float(lines[i][5])>cutoff:
+                lines2.append(lines[i])
+    
+        tracts_skov1 = []
+        for i in range(len(lines2)):
+            tracts_skov1.append([int(lines2[i][1]), int(lines2[i][2])])
+        
+        tracts_skov_neand.append(tracts_skov1)
+    return tracts_skov_neand
