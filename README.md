@@ -11,9 +11,11 @@ The description of the used files is [here][1]
 
 # Preparations of files
 
+Download file with ancestrall alleles from [here][5] or go to the directory ./preparations/ to run script and get ancestral alleles from 1000GP hg19.
+
 To read more details for files preparation see [readme][2]. To avoid details use script 
 ```bash
- ./full.preparation.sh hg19 22 path.to/file.bed n1 n2 n3 1000GP path.to/outgroup.list  path.to/obserables.list path.to/archaic.list name.out_vcf name.out_txt
+ ./full.preparation.sh hg19 22 path.to/file.bed n1 n2 n3 1000GP path.to/obserables.list path.to/outgroup.list path.to/archaic.list name.out_vcf name.out_txt
 ```
 where 1000GP, n1, n2, n3 are [vcf with 1000 Genome project][3], [neanderthal vcfs][4] and [chagyrskaya][5] (needed to be splited). 
 
@@ -50,6 +52,8 @@ to obtain estimations of the  coalescent times and run DAIseg. Here par.file.txt
 
 [1]: https://github.com/Genomics-HSE/DAIseg/blob/main/File.types.md
 [2]: https://github.com/Genomics-HSE/DAIseg/blob/main/hg19/README.md
+
+[5]: 
 
 
 
