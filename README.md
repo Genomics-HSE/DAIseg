@@ -15,7 +15,7 @@ Download file with ancestrall alleles from [here][5] or go to the directory ./pr
 
 To read more details for files preparation see [readme][2]. To avoid details use script 
 ```bash
- ./full.preparation.Linux(MacOS).sh hg19 22 path.to/file.bed n1 n2 n3 1000GP path.to/obserables.list path.to/outgroup.list path.to/archaic.list name.out_vcf name.out_txt
+ ./full.preparation.Linux(MacOS).sh hg19 22 path.to/file.bed n1 n2 n3 1000GP path.to/obserables.list path.to/outgroup.list path.to/archaic.list name.out_vcf name.out_txt path.to/ancestral.alleles
 ```
 where 1000GP, n1, n2, n3 are [vcf with 1000 Genome project][3], [neanderthal vcfs][4] and [chagyrskaya][5] (needed to be splited). 
 
