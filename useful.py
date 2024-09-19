@@ -81,7 +81,7 @@ def read_aa_file(f_aa): #read file with ancestral alleles
     dct={}
     for  i in l:    
         m=i.replace('\n','').split('\t')
-        dct[int(m[0])]=m[1]
+        dct[int(m[1])]=m[2]
     return dct
 
 

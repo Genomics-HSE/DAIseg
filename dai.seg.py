@@ -7,7 +7,7 @@ import HMM
 import EM 
 
 
-
+import pathlib
 
 
 
@@ -16,6 +16,7 @@ parser = argparse.ArgumentParser(description='DAIseg')
 parser.add_argument('--bed', type=str, help='Region bed file')
 parser.add_argument('--EM', type=str, help='Whether or not to use EM algorithm')
 parser.add_argument('--EM_steps', type=str, help='number of EMsteps')
+parser.add_argument('--EM_samples', type=int, help='Number of samples used in training')
 parser.add_argument('--HMM_par', type= str, help='File with parameters')
 parser.add_argument('--o', type= str, help = 'Name of output file' )
 parser.add_argument('--EM_est', type= str, help = 'Make estimation of the all parameters or only coalescent times' )
@@ -138,16 +139,17 @@ if args.EM=='no':
     Tracts_HMM_mas = run_daiseg_all(Lambda_0)
 
 if args.EM=='yes': 
-    Lambda_opt = EM_gaps(SEQ, Lambda_0, N_st, cover)    
+
+
+    Lambda_opt = EM_gaps(np.array(SEQ[0 : (args.EM_samples+1)]), Lambda_0, N_st, cover)    
     Tracts_HMM_mas = run_daiseg_all(Lambda_opt)
 
 with open(args.obs_samples,'r') as f:
     names=f.readlines()
 names=[str(names[i].replace('\n','')) for i in range(len(names))]
 
-
 #write into file arg.o results #Sample #Haplotype_number #Archaic tracts
-with open(args.o, "w") as f:
+with open(args.o+'.archaic.txt', "w") as f:
    for i in range(len(Tracts_HMM_mas)):
        if i % 2 ==0:
            f.write(names[int(i // 2)]+'\t0\t'+str(Tracts_HMM_mas[i][1])+'\n')
@@ -155,5 +157,10 @@ with open(args.o, "w") as f:
            f.write(names[int(i // 2)]+'\t1\t'+str(Tracts_HMM_mas[i][1])+'\n')      
 
 
-
+with open(args.o+'.modern.txt', "w") as f:
+   for i in range(len(Tracts_HMM_mas)):
+       if i % 2 ==0:
+           f.write(names[int(i // 2)]+'\t0\t'+str(Tracts_HMM_mas[i][0])+'\n')
+       else:
+           f.write(names[int(i // 2)]+'\t1\t'+str(Tracts_HMM_mas[i][0])+'\n')  
 
