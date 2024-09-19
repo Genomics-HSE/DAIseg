@@ -53,7 +53,7 @@ to obtain estimations of the  coalescent times and run DAIseg. Here par.file.txt
 [1]: https://github.com/Genomics-HSE/DAIseg/blob/main/File.types.md
 [2]: https://github.com/Genomics-HSE/DAIseg/blob/main/hg19/README.md
 
-[5]: 
+[5]: https://drive.google.com/drive/folders/1_zE9eaV3psFPRdFatkq-R1yGluvjgiX6?usp=sharing
 
 
 
