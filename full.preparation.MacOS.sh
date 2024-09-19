@@ -25,7 +25,7 @@ cd preparations
 
 
 
-./new.panel.preparation.Linux.sh ${CHR} ${out} ${obs} ${bed} ${GP1000} ${n1} ${n2} ${n3} ${outfilevcf}
+./new.panel.preparation.MacOS.sh ${CHR} ${out} ${obs} ${bed} ${GP1000} ${n1} ${n2} ${n3} ${outfilevcf}
 
 
 ./new.make.obs.sh ${CHR} ${outfilevcf} ${obs} ${out} ${arch}  ${aa} ${bed} ${outtxt}
