@@ -64,7 +64,7 @@ tabix -p vcf 1.vcf.gz
 
 
 echo "DAIseg: The next goal is to obtain vcf with positions of 1000GP which are missed in archaic samples"
-ggrep -Fxf 1000GP.pos.chr22.txt archaic.merged.chr${CHR}.txt > int.txt
+ggrep -Fxf 1000GP.pos.chr${CHR}.txt archaic.merged.chr${CHR}.txt > int.txt
 bcftools view -R ${bed} -v snps -T ^int.txt -S samples.for.hmm.txt ${NAME1000} -Oz -o 2.vcf.gz
 tabix -p vcf 2.vcf.gz
 
