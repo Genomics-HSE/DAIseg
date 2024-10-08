@@ -139,6 +139,10 @@ def new_lambda_i_gaps(O, Gamma, gaps, cover):
                 if cover[t] > cover_cut:   
                     nom += o[t, 1] *  gamma[1, t]
                     denom += (int(cover[t]*10)/10+0.1)*gamma[1,t]
+
+
+    if denom==0: # only in case of no archaic covering
+        return 0
     return nom/denom
    
 def new_lambda_n_gaps(O, Gamma, gaps, cover):
