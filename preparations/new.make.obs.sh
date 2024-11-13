@@ -36,7 +36,7 @@ rm obs.chr${CHR}.ingroup.txt
 rm 3.chr${CHR}.txt
 
 
-python3 obs2.py ${CHR}  temp.allels.ref.and.obs.chr${CHR}.txt ${aa} ${bed} ${8}
+python3 obs2.py ${CHR}  temp.allels.ref.and.obs.chr${CHR}.txt ${aa} ${bed} ${outtxt}
 
 rm temp.allels.ref.and.obs.chr${CHR}.txt
 rm obs.chr${CHR}.txt
