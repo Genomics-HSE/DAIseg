@@ -23,6 +23,9 @@ parser.add_argument('--EM_est', type= str, help = 'Make estimation of the all pa
 parser.add_argument('--prepared_file', type=str, help='dlkfjgljk')
 parser.add_argument('--arch_cover', type=str)
 parser.add_argument('--obs_samples', type=str, help='File with samples names')
+parser.add_argument('--decoding', type=str, help='Viterbi or aposteriory decoding')
+parser.add_argument('--cut_off', type=float, help='Decoding cut off')
+
 args = parser.parse_args()
 
 
@@ -127,6 +130,44 @@ def run_daiseg_all(lmbd_0):
     return tracts_HMM_mas
 
 
+
+cut_off=args.cut_off
+def run_daiseg_posterior(lmbd_opt,seq, n_st, idx, start, ar_cover, gaps_numbers, cut_off):
+    d = MU * L
+    A = HMM.initA(L,RR, lmbd_opt[4]/d, lmbd_opt[3])
+    
+
+    
+    B_our_mas = np.array([HMM.initB_arch_cover(MU,L, lmbd_opt, n_st, 0.1+i*0.1) for i in range(10)])
+    B_Skov = HMM.initBwN(L, lmbd_opt[0:3], n_st)
+    P=[0.97, 0.03]
+
+    tracts_HMM =  HMM.get_HMM_tracts(HMM.posterior(seq [idx], P, A, B_our_mas, B_Skov, ar_cover, gaps_numbers, cut_off))
+
+    for k in range(N):
+       for j in range(len(tracts_HMM[k])):
+           tracts_HMM[k][j][0]= L * tracts_HMM[k][j][0]+start
+           tracts_HMM[k][j][1]= L * (tracts_HMM[k][j][1]+1)+start-1
+
+    return tracts_HMM
+
+
+def run_daiseg_all_posterior(lmbd_0, cut_off, gaps_numbers):
+    tracts_HMM_mas=[]
+
+    
+    for idx in range(0, n_eu):    
+        tracts_HMM=[[],[]]
+        for i in range(len(SEQ_mas)):
+            tr=run_daiseg_posterior(lmbd_0, SEQ_mas[i], N_st, idx, seq_start_mas[i], arch_cover[i], gaps_numbers, cut_off)
+            for j in range(N):   
+               for k in tr[j]:             
+                   tracts_HMM[j].append( k )
+ 
+
+        tracts_HMM_mas.append([tracts_HMM[j] for j in range(N)])
+    return tracts_HMM_mas
+
 def EM_gaps(seq, lambda_0, n_st, cover):
     return EM.EM_algorithm_gaps(P, seq, n_st, MU, RR, lambda_0, epsilon, L, int(args.EM_steps), gaps_numbers, cover )
 
@@ -136,13 +177,21 @@ epsilon = 1e-8
 
 
 if args.EM=='no': 
-    Tracts_HMM_mas = run_daiseg_all(Lambda_0)
+    if args.decoding=='viterbi':
+        Tracts_HMM_mas = run_daiseg_all(Lambda_0)
+    else:
+        Tracts_HMM_mas=run_daiseg_all_posterior(Lambda_0, cut_off, gaps_numbers)
 
 if args.EM=='yes': 
 
 
     Lambda_opt = EM_gaps(np.array(SEQ[0 : (args.EM_samples+1)]), Lambda_0, N_st, cover)    
-    Tracts_HMM_mas = run_daiseg_all(Lambda_opt)
+    if args.decoding=='viterbi':
+        Tracts_HMM_mas = run_daiseg_all(Lambda_opt)
+    else:
+        Tracts_HMM_mas=run_daiseg_all_posterior(Lambda_opt, cut_off, gaps_numbers)
+
+
 
 with open(args.obs_samples,'r') as f:
     names=f.readlines()
@@ -163,4 +212,5 @@ with open(args.o+'.modern.txt', "w") as f:
            f.write(names[int(i // 2)]+'\t0\t'+str(Tracts_HMM_mas[i][0])+'\n')
        else:
            f.write(names[int(i // 2)]+'\t1\t'+str(Tracts_HMM_mas[i][0])+'\n')  
+
 

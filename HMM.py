@@ -276,5 +276,29 @@ def viterbi_modified2(V, initial_distribution, a, b_our_mas, b_Skov, archaic_cov
 
     return result
 
+import EM
+
+def posterior(o, initial_distribution, a, b_our_mas, b_Skov, archaic_cover, gaps, cut_off):
+    
+    alpha, sc_factors = EM.alpha_scaled_opt_gaps(a,b_Skov, b_our_mas, o, initial_distribution, gaps, archaic_cover)
+    beta = EM.beta_scaled_opt_gaps(a, b_Skov, b_our_mas, o, sc_factors, gaps, archaic_cover)    
+    gamma = np.array(EM.def_gamma_gaps(alpha, beta, gaps)) 
+
+
+    result=[]
+    for j in range(len(gamma[0])):
+        if gamma[:,j].argmax()==1 and gamma[:,j].max()>=cut_off:
+            result.append(1)
+        else:
+            result.append(0)
+
+
+    return result
+
+
+
+
+
+
 
 
