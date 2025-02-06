@@ -3,8 +3,9 @@
 
 import msprime 
 import numpy as np
+import useful
 
-def history_archaic(gen_time, len_seq, rr,mu, n_e, t,  n, rand_sd, n_neand, t_neand_samples, n_eu, n_eu_growth, t_eu_growth, n_eu_bottleneck, gr_rt, p_admix ):
+def history_archaic(gen_time, len_seq, rr,mu, n_e, t,  n, rand_sd, n_neand, t_neand_samples, n_eu, n_eu_growth, t_eu_growth, n_eu_bottleneck, gr_rt, p_admix,ploid ):
    
     n_ANC, n_ND, n_AMH, n_OOA,n_AF, n_EU = n_e
     t_NEAND_migration, t_NEAND_AMH, t_OOF_AF = t
@@ -35,13 +36,13 @@ def history_archaic(gen_time, len_seq, rr,mu, n_e, t,  n, rand_sd, n_neand, t_ne
 
     ts = msprime.sim_ancestry(
         samples=        [       
-                msprime.SampleSet(n_eu, ploidy=1, population='EU'), 
-                msprime.SampleSet(n, ploidy=1, population='AF'),
-                msprime.SampleSet(n_neand, ploidy=1, population='NEAND', time = t_neand_samples)          
+                msprime.SampleSet(n_eu, ploidy=ploid, population='EU'), 
+                msprime.SampleSet(n, ploidy=ploid, population='AF'),
+                msprime.SampleSet(n_neand, ploidy=ploid, population='NEAND', time = t_neand_samples)          
                
         ],
     
-        ploidy=1,    
+        ploidy=ploid,    
         sequence_length=len_seq,
         recombination_rate=rr, 
         demography=demography,
@@ -172,5 +173,45 @@ def print_neand_dosages(ts):
     print("Neand ancestry: ", true_de_prop)
       
 
+def create_obs_txt(file, ploidy, n_diplo, ts, n_ref_pop, n_neanderthal, n):
+    N_neanderthal, n_eu, n, N_ref_pop =ploidy*n_neanderthal, ploidy * n_diplo, ploidy*n, ploidy* n_ref_pop
+    
+    with open(file, 'w') as f:
+        f.write('#POSITIONS\t#REF\t#ALT\tANCESTRAL\t#OUTGROUP\t#ARCHAIC\t#OBSERVATIONS\n')
+        for v in ts.variants():
+            outgroup= str(list(set(v.genotypes[n_eu :( n_eu+N_ref_pop)]))).replace('[','').replace(']','').replace(' ','')
+            archaic= str(list(set(v.genotypes[n_eu+n :( n_eu+n+N_neanderthal)]))).replace('[','').replace(']','').replace(' ','')
+    
+            obs=''
+            for i in v.genotypes[0 :n_eu]:
+                obs+=str(i)+' '
+    
+            f.write(str(int(v.site.position))+'\t'+str(v.alleles[0])+'\t'+
+                    str(v.alleles[1]) + '\t'+ str(0)+'\t' + outgroup+'\t'+archaic+'\t'+str(obs)+'\n')    
 
-   
+
+
+def create_bed_smpls_arch_cov(sample_file, bed_file, arch_cover_file,len_sequence, cover, CHR, n_eu_diplo, ploidy):
+    N_eu=n_eu_diplo*ploidy
+    L=1000
+    
+    #create bed file
+    with open(bed_file,'w') as f:
+        f.write('1\t0\t'+str(int(len_sequence)-1)+'\n')
+    
+    domain=useful.read_bed(bed_file)
+    
+    n_windows=(domain[-1][1]-domain[0][0])//L + 1
+    windows_cover=np.ones(n_windows)*cover
+    
+    #create archaic covering file. 
+    
+    with open(arch_cover_file,'w') as f:
+        for j in windows_cover:
+            f.write(str(j)+'\n')
+    
+    
+    #create file with sample's names
+    with open(sample_file,'w') as f:
+        for i in range(N_eu):
+            f.write('eu'+str(i)+'\n')
