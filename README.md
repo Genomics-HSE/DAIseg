@@ -27,7 +27,7 @@ To run DAIseg you need
 143	T	A	0	0,1	.	0 0 0 0
 ...
 ```
-which consists of the rows corresponding to biallelic SNPs with columns of SNS's position, REF and ALT alleles, Ancestral allele(if possible), Outgroup(African) and Neanderthal variants(if it is possible) and 2*number_of_samples haplotypes. 
+which consists of the rows corresponding to biallelic SNPs with columns of SNS's position on CHR, REF and ALT alleles, Ancestral allele(if possible), Outgroup(African) and Neanderthal variants(if it is possible) and 2*number_of_samples haplotypes. 
 
 2) samples.txt = list of samples
 ```bash
@@ -41,8 +41,15 @@ name2
 CHR	po1	pos2
 CHR	po3	pos4
 ...
+CHR	posN	pos(N+1)
 ```
-5) 
+4) arch.covering.txt is the file with archaic covering persentage of each window of length L=1000 including the gaps (i.e. [pos2+1, pos3-1] we have 0.0 covering)
+```bash
+0.98
+0.67
+...
+0.33
+6) 
 
 
 ```bash
