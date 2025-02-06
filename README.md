@@ -21,11 +21,13 @@ There are two options without EM-algorithm and with EM algorithm.
 To run DAIseg you nee the with with the following structure
 ```bash
 #POSITIONS	#REF	#ALT	ANCESTRAL	#OUTGROUP	#ARCHAIC	#OBSERVATIONS
-48	G	A	0	0	0	0 0 0 0 
+48	G	A	.	0	0	0 0 0 0 
 67	A	T	0	0	0,1	0 0 0 0 
-143	T	A	0	0,1	0	0 0 0 0
+143	T	A	0	0,1	.	0 0 0 0
 ...
 ```
+which consists of the rows corresponding to biallelic SNPs with columns of SNS's position, REF and ALT alleles, Ancestral allele(if possible), Outgroup(African) and Neanderthal variants(if it is possible) and 2*number_of_samples haplotypes. 
+
 
 
 
