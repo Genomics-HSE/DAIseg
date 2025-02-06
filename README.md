@@ -90,9 +90,18 @@ CHR	posN	pos(N+1)
    ```
 
 8) ```bash
-   --cut_off 0.9
+   --cut_off 0.9 # only if posterior is selected
    ```
-(only for option posterior)
+9) ```bash
+   --EM yes/no
+   ```
+11) ```bash
+    --EM_step number_of_steps #only if EM is selected
+    ```
+12) ```bash
+    --EM_samples number_of_samples #only if EM is selected
+    ```
+
 
 
 
@@ -100,6 +109,9 @@ The one examples is
 ```bash
 python3 dai.seg.py --obs_samples samples.txt --bed file.bed --HMM_par par.file.txt --EM no --prepared_file obs.txt --o out_prefix --arch_cover arch.covering.txt --decoding posterior --cut_off 0.9
 ```
+
+
+
 
 
 
