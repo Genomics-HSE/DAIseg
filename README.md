@@ -18,7 +18,13 @@ There are two options without EM-algorithm and with EM algorithm.
 
 
 # Run DAI.seg without EM algorithm
-To run DAIseg you need
+To run DAIseg 
+
+```bash
+python3 dai.seg.py --obs_samples samples.txt --bed file.bed --HMM_par par.file.txt --EM no --prepared_file obs.txt --o out_prefix --arch_cover arch.covering.txt --decoding posterior --cut_off 0.9
+```
+
+you need
 1) 'obs.txt' with  the following structure
 ```bash
 #POSITIONS	#REF	#ALT	ANCESTRAL	#OUTGROUP	#ARCHAIC	#OBSERVATIONS
