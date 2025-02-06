@@ -9,19 +9,6 @@ The description of the used files is [here][1]
 
 
 
-# Preparations of files
-
-Download file with ancestrall alleles from [here][5] or go to the directory ./preparations/ to run script and get ancestral alleles from 1000GP hg19.
-
-To read more details for files preparation see [readme][2]. To avoid details use script 
-```bash
- ./full.preparation.Linux(MacOS).sh hg19 22 path.to/file.bed n1 n2 n3 1000GP path.to/obserables.list path.to/outgroup.list path.to/archaic.list name.out_vcf name.out_txt path.to/ancestral.alleles
-```
-where 1000GP, n1, n2, n3 are [vcf with 1000 Genome project][3], [neanderthal vcfs][4] and [chagyrskaya][5] (needed to be splited). 
-
-Write full path to the list of samples path.to/outgroup.list,  path.to/obserables.list. path.to/archaic.list
-
-name.out_vcf name.out_txt are the names of the resulting files(be saved in the hg19 directory).
 
 
 
@@ -31,6 +18,14 @@ There are two options without EM-algorithm and with EM algorithm.
 
 
 # Run DAI.seg without EM algorithm
+To run DAIseg you nee the with with the following structure
+```bash
+#POSITIONS	#REF	#ALT	ANCESTRAL	#OUTGROUP	#ARCHAIC	#OBSERVATIONS
+48	G	A	0	0	0	0 0 0 0 
+67	A	T	0	0	0,1	0 0 0 0 
+143	T	A	0	0,1	0	0 0 0 0
+...
+```
 
 
 
@@ -46,6 +41,19 @@ python3 dai.seg.py --obs_samples path.to/obserables.list --bed path.to/file.bed 
 ```
 to obtain estimations of the  coalescent times and run DAIseg. Here par.file.txt is used as the initial guess for EM algorithm.
 
+# Preparations of files
+
+Download file with ancestrall alleles from [here][5] or go to the directory ./preparations/ to run script and get ancestral alleles from 1000GP hg19.
+
+To read more details for files preparation see [readme][2]. To avoid details use script 
+```bash
+ ./full.preparation.Linux(MacOS).sh hg19 22 path.to/file.bed n1 n2 n3 1000GP path.to/obserables.list path.to/outgroup.list path.to/archaic.list name.out_vcf name.out_txt path.to/ancestral.alleles
+```
+where 1000GP, n1, n2, n3 are [vcf with 1000 Genome project][3], [neanderthal vcfs][4] and [chagyrskaya][5] (needed to be splited). 
+
+Write full path to the list of samples path.to/outgroup.list,  path.to/obserables.list. path.to/archaic.list
+
+name.out_vcf name.out_txt are the names of the resulting files(be saved in the hg19 directory).
 
 
 
