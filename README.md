@@ -56,7 +56,7 @@ CHR	posN	pos(N+1)
 
 4) ```bash
    --arch.cover arch_cover_file
-```
+   ```
     The file with archaic covering persentage of each window of length L=1000 including the gaps (i.e. [pos2+1, pos3-1] we have 0.0 covering)
 ```bash
 0.98
