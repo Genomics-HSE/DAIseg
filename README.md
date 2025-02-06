@@ -84,7 +84,7 @@ CHR	posN	pos(N+1)
 0.025
 ```
 
-7)```bash
+7) ```bash
 --decoding posterior/viterbi 
  ```
 
