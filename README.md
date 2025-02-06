@@ -64,9 +64,11 @@ CHR	posN	pos(N+1)
 ...
 0.33
 ```
+
 5) ```bash
    --o out_prefix
    ```
+   
 6) ```bash
    --HMM_par file_with_prms
    ```
@@ -84,7 +86,7 @@ CHR	posN	pos(N+1)
 
 7)```bash
 --decoding posterior/viterbi 
-```
+ ```
 
 8) ```bash
 --cut_off 0.9
