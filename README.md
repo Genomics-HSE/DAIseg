@@ -17,7 +17,7 @@ The description of the used files is [here][1]
 There are two options without EM-algorithm and with EM algorithm. 
 
 
-# Run DAI.seg without EM algorithm
+# Run DAI.seg 
 Run DAIseg daiseg.py with required options
 
 
@@ -102,7 +102,7 @@ CHR	posN	pos(N+1)
     --EM_samples number_of_samples #only if EM is selected
     ```
 
-
+# Examples
 
 
 The first examples with no EM and posterior decoding algorithm is  
@@ -116,7 +116,8 @@ The second example with EM on 10 samples  and Viterbi algorithm
 python3 dai.seg.py --obs_samples samples.txt --bed file.bed --HMM_par par.file.txt --EM yes --EM_samples 10 --EM_steps 20  --prepared_file obs.txt --o out_prefix --arch_cover arch.covering.txt --decoding posterior --cut_off 0.9
 ```
 
-
+# Working with real data
+(If your samples are in 1000GP on grch37 or grch38)
 
 ```bash
 python3 dai.seg.py --obs_samples path.to/obserables.list --bed path.to/file.bed   --HMM_par par.file.txt --EM no --prepared_file ./preparations/hg19.all.chr22.txt --o out.chr22 --arch_cover ./preparations/hg19.arch.covering.chr22.txt --decoding posterior/viterbi --cut_off 0.9
