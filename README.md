@@ -18,14 +18,12 @@ There are two options without EM-algorithm and with EM algorithm.
 
 
 # Run DAI.seg without EM algorithm
-To run DAIseg 
+Run DAIseg daiseg.py with required options
 
-```bash
-python3 dai.seg.py --obs_samples samples.txt --bed file.bed --HMM_par par.file.txt --EM no --prepared_file obs.txt --o out_prefix --arch_cover arch.covering.txt --decoding posterior --cut_off 0.9
-```
 
-you need
-1) 'obs.txt' with  the following structure
+
+1) --prepared_file name_of_file
+
 ```bash
 #POSITIONS	#REF	#ALT	ANCESTRAL	#OUTGROUP	#ARCHAIC	#OBSERVATIONS
 48	G	A	.	0	0	0 0 0 0 
@@ -35,33 +33,52 @@ you need
 ```
 which consists of the rows corresponding to biallelic SNPs with columns of SNS's position on CHR, REF and ALT alleles, Ancestral allele(if possible), Outgroup(African) and Neanderthal variants(if it is possible) and 2*number_of_samples haplotypes. 
 
-2) samples.txt = list of samples
+2) --obs_samples sample_list
 ```bash
 name1
 name2
 ...
 ```
 
-3) .bed file
+3) --bed bed_file
 ```bash
 CHR	po1	pos2
 CHR	po3	pos4
 ...
 CHR	posN	pos(N+1)
 ```
-4) arch.covering.txt is the file with archaic covering persentage of each window of length L=1000 including the gaps (i.e. [pos2+1, pos3-1] we have 0.0 covering)
+4) --arch.cover arch_cover_file. The file with archaic covering persentage of each window of length L=1000 including the gaps (i.e. [pos2+1, pos3-1] we have 0.0 covering)
 ```bash
 0.98
 0.67
 ...
 0.33
 ```
+5) --o out_prefix
+6) --HMM_par file_with_prms
+```bash
+29
+1.25e-08
+1e-08
+1000
+550000
+70000
+55000
+55000
+0.025
+```
+
+
+
+The one examples is 
+```bash
+python3 dai.seg.py --obs_samples samples.txt --bed file.bed --HMM_par par.file.txt --EM no --prepared_file obs.txt --o out_prefix --arch_cover arch.covering.txt --decoding posterior --cut_off 0.9
+```
+
 
 
 ```bash
 python3 dai.seg.py --obs_samples path.to/obserables.list --bed path.to/file.bed   --HMM_par par.file.txt --EM no --prepared_file ./preparations/hg19.all.chr22.txt --o out.chr22 --arch_cover ./preparations/hg19.arch.covering.chr22.txt --decoding posterior/viterbi --cut_off 0.9
-```
-
 
 # Run DAI.seg using EM algorithm
 
