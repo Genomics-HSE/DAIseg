@@ -70,7 +70,7 @@ CHR	posN	pos(N+1)
    ```
    
 6) ```bash
-   --HMM_par file_with_prms
+   --HMM_par file_with_prms #for the simples Neand to EU scenario available in main directory
    ```
 ```bash
 29
@@ -105,13 +105,16 @@ CHR	posN	pos(N+1)
 
 
 
-The one examples is 
+The first examples with no EM and posterior decoding algorithm is  
 ```bash
 python3 dai.seg.py --obs_samples samples.txt --bed file.bed --HMM_par par.file.txt --EM no --prepared_file obs.txt --o out_prefix --arch_cover arch.covering.txt --decoding posterior --cut_off 0.9
 ```
 
 
-
+The second example with EM on 10 samples  and Viterbi algorithm
+```bash
+python3 dai.seg.py --obs_samples samples.txt --bed file.bed --HMM_par par.file.txt --EM yes --EM_samples 10 --EM_steps 20  --prepared_file obs.txt --o out_prefix --arch_cover arch.covering.txt --decoding posterior --cut_off 0.9
+```
 
 
 
