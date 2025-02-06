@@ -45,8 +45,8 @@ name2
 ```
 
 3)```bash
---bed bed_file
-```
+  --bed bed_file
+  ```
 ```bash
 CHR	po1	pos2
 CHR	po3	pos4
