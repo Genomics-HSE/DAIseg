@@ -44,22 +44,32 @@ name2
 ...
 ```
 
-3) --bed bed_file
+3)```bash
+--bed bed_file
+```
 ```bash
 CHR	po1	pos2
 CHR	po3	pos4
 ...
 CHR	posN	pos(N+1)
 ```
-4) --arch.cover arch_cover_file. The file with archaic covering persentage of each window of length L=1000 including the gaps (i.e. [pos2+1, pos3-1] we have 0.0 covering)
+
+4) ```bash
+   --arch.cover arch_cover_file
+```
+    The file with archaic covering persentage of each window of length L=1000 including the gaps (i.e. [pos2+1, pos3-1] we have 0.0 covering)
 ```bash
 0.98
 0.67
 ...
 0.33
 ```
-5) --o out_prefix
-6) --HMM_par file_with_prms
+5) ```bash
+   --o out_prefix
+   ```
+6) ```bash
+   --HMM_par file_with_prms
+   ```
 ```bash
 29
 1.25e-08
