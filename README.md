@@ -26,7 +26,7 @@ Run DAIseg daiseg.py with required options
    --prepared_file name_of_file
    ```
 
-```bash
+ ```bash
 #POSITIONS	#REF	#ALT	ANCESTRAL	#OUTGROUP	#ARCHAIC	#OBSERVATIONS
 48	G	A	.	0	0	0 0 0 0 
 67	A	T	0	0	0,1	0 0 0 0 
