@@ -22,7 +22,9 @@ Run DAIseg daiseg.py with required options
 
 
 
-1) --prepared_file name_of_file
+1) ```bash
+   --prepared_file name_of_file
+   ```
 
 ```bash
 #POSITIONS	#REF	#ALT	ANCESTRAL	#OUTGROUP	#ARCHAIC	#OBSERVATIONS
@@ -33,7 +35,9 @@ Run DAIseg daiseg.py with required options
 ```
 which consists of the rows corresponding to biallelic SNPs with columns of SNS's position on CHR, REF and ALT alleles, Ancestral allele(if possible), Outgroup(African) and Neanderthal variants(if it is possible) and 2*number_of_samples haplotypes. 
 
-2) --obs_samples sample_list
+2) ```bash
+   --obs_samples sample_list
+   ```
 ```bash
 name1
 name2
