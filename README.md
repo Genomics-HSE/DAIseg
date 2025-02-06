@@ -29,14 +29,20 @@ To run DAIseg you need
 ```
 which consists of the rows corresponding to biallelic SNPs with columns of SNS's position, REF and ALT alleles, Ancestral allele(if possible), Outgroup(African) and Neanderthal variants(if it is possible) and 2*number_of_samples haplotypes. 
 
-2) List of samples samples.txt
+2) samples.txt = list of samples
 ```bash
 name1
 name2
 ...
 ```
 
-4) 
+3) .bed file
+```bash
+CHR	po1	pos2
+CHR	po3	pos4
+...
+```
+5) 
 
 
 ```bash
