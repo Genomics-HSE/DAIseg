@@ -225,38 +225,7 @@ def len_tracts(set_intervals):
             s+= set_intervals[j][1]-set_intervals[j][0]+1
         return s
     
-def confusion_mtrx(real, res_HMM, N):
-    
-    conf_matrix = np.zeros((N,N))
-    for i in range(N):
-        for j in range(N):
-            conf_matrix[i,j] =int(len_tracts(intersections(real[i], res_HMM[j])))
-    return conf_matrix
 
-def classification_rpt(conf_matrix):
-    N=len(conf_matrix)
-    clas_report = {}
-    for i in range(N):
-        dd={}
-        dd['precision'] = round(conf_matrix[i,i]/sum(conf_matrix[:,i]),7)
-        dd['recall'] = round(conf_matrix[i,i]/sum(conf_matrix[i,:]),7)
-        dd['f1-score'] = round(2*dd['recall']*dd['precision']/(dd['recall']+dd['precision']), 7)
-        clas_report[str(i)] = dd
-    return clas_report 
-    
-def df_result(real_tracts_in_states, tracts_HMM, n_neanderthal, cut, n_ref_pop, n_eu, N):
-
-    df= pd.DataFrame(columns=['State', 'Value', 'Score', 'n_eu',
-                                       'n_neand', 'L',  'n_ref_pop'])
-
-    for idx in range(n_eu):
-        cl_report = classification_rpt(confusion_mtrx(real_tracts_in_states[idx], tracts_HMM[idx], N))
-        for j in range(N):
-            df.loc[len(df.index)] = [j, cl_report[str(j)]['precision'], 'precision',idx, n_neanderthal, cut,
-                                         n_ref_pop]
-            df.loc[len(df.index)] = [j, cl_report[str(j)]['recall'], 'recall',idx, n_neanderthal, cut, 
-                                         n_ref_pop]
-    return df   
 
 def read_out(file):
     with open(file, 'r') as f:

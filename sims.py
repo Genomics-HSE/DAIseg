@@ -5,6 +5,8 @@ import msprime
 import numpy as np
 import useful
 
+import pandas as pd
+
 def history_archaic(gen_time, len_seq, rr,mu, n_e, t,  n, rand_sd, n_neand, t_neand_samples, n_eu, n_eu_growth, t_eu_growth, n_eu_bottleneck, gr_rt, p_admix,ploid ):
    
     n_ANC, n_ND, n_AMH, n_OOA,n_AF, n_EU = n_e
@@ -231,3 +233,64 @@ def real_nd_tracts(ts, n_eu_diplo, ploidy, T):
 
     return ND_true_tracts
     print('средняя доля неандертальца',s/(n_eu * len_sequence))
+
+
+
+def ne_set_interval(set_intervals):
+    
+    ne_set = []
+    for j in range(len(set_intervals)):
+        
+        if j==0:
+            ne_set.append([0,set_intervals[j][0]-1])
+        if j== len(set_intervals)-1:
+            ne_set.append([set_intervals[j][1]+1, seq_length-1])
+        if j!=0 and j!= len(set_intervals)-1:
+            ne_set.append([set_intervals[j-1][1]+1, set_intervals[j][0]-1])
+    return ne_set
+
+def len_tracts(set_intervals):
+    if len(set_intervals)==0:
+        return 0
+    else:
+        s=0
+        for j in range(len(set_intervals)):
+            s+= set_intervals[j][1]-set_intervals[j][0]+1
+        return s
+    
+def confusion_mtrx(real, res_HMM, N):
+    
+    conf_matrix = np.zeros((N,N))
+    for i in range(N):
+        for j in range(N):
+            conf_matrix[i,j] =int(len_tracts(useful.intersections(real[i], res_HMM[j])))
+    return conf_matrix
+
+def classification_rpt(conf_matrix):
+    N=len(conf_matrix)
+    clas_report = {}
+    for i in range(N):
+        dd={}
+        dd['precision'] = round(conf_matrix[i,i]/sum(conf_matrix[:,i]),7)
+        dd['recall'] = round(conf_matrix[i,i]/sum(conf_matrix[i,:]),7)
+        dd['f1-score'] = round(2*dd['recall']*dd['precision']/(dd['recall']+dd['precision']), 7)
+        clas_report[str(i)] = dd
+    return clas_report 
+
+
+
+
+
+def df_result(real_tracts_in_states, tracts_HMM, n_neanderthal, cut, n_ref_pop, n_eu, N, ploidy):
+
+    df= pd.DataFrame(columns=['State', 'Value', 'Score', 'n_eu',
+                                       'n_neand', 'L',  'n_ref_pop'])
+
+    for idx in range(n_eu*ploidy):
+        cl_report = classification_rpt(confusion_mtrx(real_tracts_in_states[idx], tracts_HMM[idx], N))
+        for j in range(N):
+            df.loc[len(df.index)] = [j, cl_report[str(j)]['precision'], 'precision',idx, n_neanderthal, cut,
+                                         n_ref_pop]
+            df.loc[len(df.index)] = [j, cl_report[str(j)]['recall'], 'recall',idx, n_neanderthal, cut, 
+                                         n_ref_pop]
+    return df  
