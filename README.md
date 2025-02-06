@@ -18,7 +18,8 @@ There are two options without EM-algorithm and with EM algorithm.
 
 
 # Run DAI.seg without EM algorithm
-To run DAIseg you nee the with with the following structure
+To run DAIseg you need
+1) 'obs.txt' with  the following structure
 ```bash
 #POSITIONS	#REF	#ALT	ANCESTRAL	#OUTGROUP	#ARCHAIC	#OBSERVATIONS
 48	G	A	.	0	0	0 0 0 0 
@@ -28,7 +29,14 @@ To run DAIseg you nee the with with the following structure
 ```
 which consists of the rows corresponding to biallelic SNPs with columns of SNS's position, REF and ALT alleles, Ancestral allele(if possible), Outgroup(African) and Neanderthal variants(if it is possible) and 2*number_of_samples haplotypes. 
 
+2) List of samples samples.txt
+```bash
+name1
+name2
+...
+```
 
+4) 
 
 
 ```bash
