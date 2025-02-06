@@ -85,14 +85,6 @@ CHR	posN	pos(N+1)
 ```
 
 
-7) ```bash
---decoding posterior/viterbi 
- ```
-
-8) ```bash
---cut_off 0.9
-```
-(only for option posterior)
 
 
 
