@@ -215,3 +215,19 @@ def create_bed_smpls_arch_cov(sample_file, bed_file, arch_cover_file,len_sequenc
     with open(sample_file,'w') as f:
         for i in range(N_eu):
             f.write('eu'+str(i)+'\n')
+
+def real_nd_tracts(ts, n_eu_diplo, ploidy, T):
+    
+    ND_true_tracts = []
+    for idx in range(0, ploidy*n_eu_diplo): 
+        if (idx % 20) ==0 and n_eu_diplo>20:
+            print('Done', idx)
+        ND_true_tracts.append( get_migrating_tracts_ind(ts, 'NEAND', idx, T[0]))      
+       
+    s=0
+    for i in range(ploidy*n_eu_diplo):
+        for j in ND_true_tracts[i]:
+            s+=j[1]-j[0]    
+
+    return ND_true_tracts
+    print('средняя доля неандертальца',s/(n_eu * len_sequence))
