@@ -215,7 +215,7 @@ def create_bed_smpls_arch_cov(sample_file, bed_file, arch_cover_file,len_sequenc
     
     #create file with sample's names
     with open(sample_file,'w') as f:
-        for i in range(N_eu):
+        for i in range(n_eu):
             f.write('eu'+str(i)+'\n')
 
 def real_nd_tracts(ts, n_eu_diplo, ploidy, T):
