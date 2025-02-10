@@ -187,9 +187,11 @@ def create_obs_txt(file, ploidy, n_diplo, ts, n_ref_pop, n_neanderthal, n):
             obs=''
             for i in v.genotypes[0 :n_eu]:
                 obs+=str(i)+' '
+
+            
     
             f.write(str(int(v.site.position))+'\t'+str(v.alleles[0])+'\t'+
-                    str(v.alleles[1]) + '\t'+ str(0)+'\t' + outgroup+'\t'+archaic+'\t'+str(obs)+'\n')    
+                    str(v.alleles[1]) + '\t'+ str(list(v.alleles).index(v.site.ancestral_state))+'\t' + outgroup+'\t'+archaic+'\t'+str(obs)+'\n')    
 
 
 
@@ -215,7 +217,7 @@ def create_bed_smpls_arch_cov(sample_file, bed_file, arch_cover_file,len_sequenc
     
     #create file with sample's names
     with open(sample_file,'w') as f:
-        for i in range(n_eu):
+        for i in range(n_eu_diplo):
             f.write('eu'+str(i)+'\n')
 
 def real_nd_tracts(ts, n_eu_diplo, ploidy, T):
@@ -280,7 +282,6 @@ def classification_rpt(conf_matrix):
 
 
 
-
 def df_result(real_tracts_in_states, tracts_HMM, n_neanderthal, cut, n_ref_pop, n_eu, N, ploidy):
 
     df= pd.DataFrame(columns=['State', 'Value', 'Score', 'n_eu',
@@ -294,3 +295,102 @@ def df_result(real_tracts_in_states, tracts_HMM, n_neanderthal, cut, n_ref_pop, 
             df.loc[len(df.index)] = [j, cl_report[str(j)]['recall'], 'recall',idx, n_neanderthal, cut, 
                                          n_ref_pop]
     return df  
+
+
+
+def df_result_lonf_chr(real_tracts_in_states, tracts_HMM, n_neanderthal,  n_ref_pop, N):
+
+    df= pd.DataFrame(columns=['State', 'Value', 'Score',
+                                       'n_neand',   'n_ref_pop'])
+
+    
+    cl_report = classification_rpt(confusion_mtrx(real_tracts_in_states, tracts_HMM,2))
+    for j in range(N):
+        df.loc[len(df.index)] = [j, cl_report[str(j)]['precision'], 'precision', n_neanderthal, n_ref_pop]
+        df.loc[len(df.index)] = [j, cl_report[str(j)]['recall'], 'recall', n_neanderthal,  n_ref_pop]
+    return df  
+
+
+
+#long chromosome
+def sim_history_archaic_many_ts(gen_time, len_seq, rr,mu, n_e, t,  n, rand_sd, n_neand, t_neand_samples, n_eu, n_eu_growth, t_eu_growth, n_eu_bottleneck, gr_rt, p_admix,ploid , n_chr): #n_chr - number of chrs
+    
+    ts_mas=[]
+    for _ in range(n_chr):
+
+        ts =history_archaic(gen_time, len_seq, rr, mu, n_e, t,  n, rand_sd, n_neand,  
+                              t_neand_samples/gen_time, n_eu, n_eu_growth, t_eu_growth/gen_time, n_eu_bottleneck, gr_rt, p_admix, ploid)
+        ts_mas.append(ts)
+        print_neand_dosages(ts)
+
+    nd_true_tracts_mas = [real_nd_tracts(ts, n_eu, ploid,t) for ts in ts_mas]
+    return ts_mas,  nd_true_tracts_mas
+
+
+
+def read_noND(hmmix_name, cutoff, n_chr):
+
+    tracts_skov_neand = []
+    with open(hmmix_name,'r') as f:
+        lines = f.readlines()
+       
+    for i in range(len(lines)):
+        lines[i] = lines[i].split('\t')
+
+    nd_by_chr=[[] for _ in range(n_chr)]
+    lines2=[[] for _ in range(n_chr)]    
+    for i in range(len(lines)):        
+                   
+        if 'Archaic' in lines[i] and float(lines[i][5])>cutoff :
+            lines2[int(lines[i][0])-1].append(lines[i])
+
+
+    nd_by_chr=[[] for _ in range(n_chr)]
+    for c in range(n_chr):
+        for j in range(len(lines2[c])):
+            nd_by_chr[c].append([int(lines2[c][j][1]), int(lines2[c][j][2])])
+    return nd_by_chr
+
+
+def make_ancestral_fasta(prefix, ts_mas, len_sequence):
+    for _ in range(len(ts_mas)):
+        with open(prefix+'.chr'+str(_+1)+'.fa','w') as f:
+            f.write('>chr'+str(_+1)+'\n')
+            s=''
+            k=int(0)
+            for v in ts_mas[_].variants():
+                for j in range(k,int(v.site.position)-1):
+                    
+                    if len(s)<100:
+                        s+='N'
+
+                        if len(s)==100:
+                            f.write(s+'\n')
+                            s=''
+        
+        
+                
+                k=int(v.site.position)                
+                if len(s)<100: 
+                    s+=v.site.ancestral_state
+
+                    if len(s)==100:
+                        f.write(s+'\n')
+                        s=''
+        
+        
+                
+        
+            for j in range(k, int(len_sequence)):
+        
+                if len(s)<100: 
+                    s+='N'
+                    if len(s)==100 and j>len_sequence-10:
+                        f.write(s)
+                        s=''
+                    if len(s)==100 and j<len_sequence-10:
+                        f.write(s+'\n')
+                        s=''
+
+
+
