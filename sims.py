@@ -187,11 +187,20 @@ def create_obs_txt(file, ploidy, n_diplo, ts, n_ref_pop, n_neanderthal, n):
             obs=''
             for i in v.genotypes[0 :n_eu]:
                 obs+=str(i)+' '
+                
+            flag=[]
+            for o in v.genotypes[0 :n_eu]:
+                if (str(o) in outgroup) and  (str(o) in archaic):
+                    flag.append(True)
+            if flag==[True for o in v.genotypes[0 :n_eu]]:
+                pass
+            else:
 
             
     
-            f.write(str(int(v.site.position))+'\t'+str(v.alleles[0])+'\t'+
-                    str(v.alleles[1]) + '\t'+ str(list(v.alleles).index(v.site.ancestral_state))+'\t' + outgroup+'\t'+archaic+'\t'+str(obs)+'\n')    
+                f.write(str(int(v.site.position))+'\t'+str(v.alleles[0])+'\t'+
+                        str(v.alleles[1]) + '\t'+ str(list(v.alleles).index(v.site.ancestral_state))+'\t' +
+                        outgroup+'\t'+archaic+'\t'+str(obs)+'\n')    
 
 
 
