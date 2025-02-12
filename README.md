@@ -35,7 +35,7 @@ Run DAIseg daiseg.py with required options
 ```
 which consists of the rows corresponding to biallelic SNPs with columns of SNS's position on CHR, REF and ALT alleles, Ancestral allele(if possible), Outgroup(African) and Neanderthal variants(if it is possible) and 2*number_of_samples haplotypes. 
 
-!Note! You could ommit rows if every the target variant is included in outgroup and archaic variants 
+!Note! You could ommit rows if every the target variant is included in outgroup and archaic variants  OR is include in outgroup but with unknown archaic
 
 2) ```bash
    --obs_samples sample_list
