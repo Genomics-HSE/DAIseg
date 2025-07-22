@@ -1,5 +1,6 @@
 
 # DAIseg
+Based on https://link.springer.com/article/10.1134/S1995080224602959
 DAIseg method is created to detect ancient introgressed segments using unadmixed outgroup population and several reference archaic genomes.  
 
 
