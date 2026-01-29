@@ -5,31 +5,31 @@ Below is the complete execution pipeline for chromosome 22.
 ### 1. Data Restriction
 Filters the 1000 Genomes VCFs based on the configuration.
 ```bash
-python daiseg.py restrict_1kG -json all.chr22.json -threads 8
+python daiseg.py restrict_1kG -json example.json -threads 8
 ```
 
 ### 2. Callability Mask
 Calculates the genomic windows accessible for analysis (filters masks).
 ```bash
-python daiseg.py callability -json all.chr22.json -threads 8
+python daiseg.py callability -json example.json -threads 8
 ```
 
 ### 3. Main Preprocessing
 Merges VCFs, filters SNPs, and creates the observation matrix (TSV).
 ```bash
-python daiseg.py main.prep -json all.chr22.json -threads 8
+python daiseg.py main.prep -json example.json -threads 8
 ```
 
 ### 4. Running HMM
 Runs the Hidden Markov Model to infer introgression tracts.
 ```bash
-python daiseg.py run -json all.chr22.json
+python daiseg.py run -json examle.json
 ```
 
 ### 5. Using EM for estimation
 Runs the Hidden Markov Model to infer introgression tracts.
 ```bash
-python daiseg.py run.with.EM -json all.chr22.json
+python daiseg.py run.with.EM -json example.json
 ```
 
 ---
