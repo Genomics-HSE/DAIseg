@@ -1,3 +1,20 @@
+# DAIseg
+**A Hidden Markov Model (HMM) for detecting archaic introgression in modern genomes.**
+
+## 📌 Overview
+DAIseg is a highly accurate method to identify genomic segments in modern humans inherited from Neanderthals and Denisovans. It outperforms existing tools by jointly using archaic and unadmised outgroup references in an HMM framework.
+
+## 🔧 Core Method
+- **Model:** Hidden Markov Model (HMM)
+- **Key Innovation:** Dual-reference comparison (archaic genome + unadmised outgroup)
+- **Output:** Genomic tracts of archaic ancestry with high precision/recall.
+
+## 📖 Reference
+Planche, L., Ilina, A.V., & Shchur, V.L. (2024). Highly Accurate Method for Detecting Archaic Segments in the Modern Genomes. *Lobachevskii J Math*, 45, 2910–2917.  
+[https://doi.org/10.1134/S1995080224602959](https://doi.org/10.1134/S1995080224602959)
+
+
+
 # Workflow
 
 Below is the complete execution pipeline for chromosome 22.
