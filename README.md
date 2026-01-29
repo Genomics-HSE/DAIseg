@@ -28,11 +28,11 @@ chr  start_i  end_i  num_variants  pos_in_mask  window_length  coverage
 ```
 
 
-Processing Logic
-    Window Creation – Divides chromosome into non-overlapping window_size bp windows
-    Variant Counting – For each window, counts variants whose coordinates overlap
-    Mask Coverage – Calculates number of base positions overlapping the callability mask
-    Coverage Calculation – Computes coverage = pos_in_mask / window_length
+**Processing Logic.**
+    - Window Creation – Divides chromosome into non-overlapping window_size bp windows
+    - Variant Counting – For each window, counts variants whose coordinates overlap
+    - Mask Coverage – Calculates number of base positions overlapping the callability mask
+    - Coverage Calculation – Computes coverage = pos_in_mask / window_length
 
 
 
