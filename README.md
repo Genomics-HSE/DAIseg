@@ -16,6 +16,28 @@ The introgression scenario describes a historical admixture event where an ances
 Planche, L., Ilina, A.V., & Shchur, V.L. (2024). Highly Accurate Method for Detecting Archaic Segments in the Modern Genomes. *Lobachevskii J Math*, 45, 2910–2917.  [https://doi.org/10.1134/S1995080224602959](https://doi.org/10.1134/S1995080224602959)
 
 
+# General workflow 
+
+### 1. Create cover files 
+
+### 2. Create file with general information in significant genome positions
+
+
+
+
+### 3. Running HMM
+Runs the Hidden Markov Model to infer introgression tracts.
+```bash
+python daiseg.py run -json examle.json
+```
+
+### 4. Using EM for estimation
+Runs the Hidden Markov Model to infer introgression tracts.
+```bash
+python daiseg.py run.with.EM -json example.json
+```
+
+
 
 # Workflow for samples (ingroup and outgroup) in 1000GP
 
