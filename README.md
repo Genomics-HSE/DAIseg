@@ -19,17 +19,13 @@ Planche, L., Ilina, A.V., & Shchur, V.L. (2024). Highly Accurate Method for Dete
 # General workflow 
 
 ### 1. Create file with general information in significant genome positions
-Processing Logic
+Processing Logic:
+    1. Window Creation. Divides chromosome into non-overlapping window_size bp windows
+    2. Variant Counting. For each window, counts variants whose coordinates overlap the window
+    3. Mask Coverage. Calculates number of base positions overlapping the callability mask
+    4. Coverage Calculation: Computes coverage = pos_in_mask / window_length
 
-    Window Creation: Divides chromosome into non-overlapping window_size bp windows
-
-    Variant Counting: For each window, counts variants whose coordinates overlap the window
-
-    Mask Coverage: Calculates number of base positions overlapping the callability mask
-
-    Coverage Calculation: Computes coverage = pos_in_mask / window_length
-
-Processes a chromosome to create a BED file with callability coverage statistics calculated in 1000 bp windows.
+Processes a chromosome to create a .BED file with callability coverage statistics calculated in 1000 bp windows.
 
 **Output BED Format**
 Tab-separated values with columns chr  start_i  end_i  num_variants  pos_in_mask  window_length  coverage
