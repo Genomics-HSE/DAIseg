@@ -39,7 +39,7 @@ chr  start_i  end_i  num_variants  pos_in_mask  window_length  coverage
     - Coverage Calculation – Computes coverage = pos_in_mask / window_length.
 
 
-
+**Example.**
 ```bash
 1    0       999    12    980    1000    0.980
 1    1000    1999    8     995    1000    0.995
