@@ -48,7 +48,7 @@ chr  start_i  end_i  num_variants  pos_in_mask  window_length  coverage
 
 ### 1.1 Create file with general information in significant genome positions of archaic genomes
 
-Processes a chromosome to create a .BED file with callability coverage statistics calculated in 1000 bp windows. Output BED Format  is 
+Processes a chromosome to create a .BED file with neanderthal callability calculated in 1000 bp windows. Output BED Format  is 
 Tab-separated values with columns 
 
 ```bash
