@@ -17,7 +17,7 @@ Planche, L., Ilina, A.V., & Shchur, V.L. (2024). Highly Accurate Method for Dete
 
 
 
-# Workflow
+# Workflow for samples (ingroup and outgroup) in 1000GP
 
 Below is the complete execution pipeline for chromosome 22.
 
