@@ -18,7 +18,7 @@ Planche, L., Ilina, A.V., & Shchur, V.L. (2024). Highly Accurate Method for Dete
 
 # General workflow 
 
-### 1. Create file with general information in significant genome positions of modern genomes
+### 1. Create file with general callability information of modern genomes
 
 Processes a chromosome to create a .BED file with callability coverage statistics calculated in 1000 bp windows. Output BED Format  is 
 Tab-separated values with columns 
