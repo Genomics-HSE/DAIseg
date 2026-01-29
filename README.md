@@ -2,11 +2,11 @@
 **A Hidden Markov Model (HMM) for detecting archaic introgression in modern genomes.**
 
 ## 📌 Overview
-DAIseg is a highly accurate method to identify genomic segments in modern humans inherited from Neanderthals and Denisovans. It outperforms existing tools by jointly using archaic and unadmised outgroup references in an HMM framework.
+DAIseg is a highly accurate method to identify genomic segments in modern humans inherited from archaic admixture.
 
 ## 🔧 Core Method
 - **Model:** Hidden Markov Model (HMM)
-- **Key Innovation:** Dual-reference comparison (archaic genome + unadmised outgroup)
+* **Dual-Reference Strategy:** Leverages both archaic and unadmixed modern reference data to minimize false positives.
 - **Output:** Genomic tracts of archaic ancestry with high precision/recall.
 
 ## 📖 Reference
