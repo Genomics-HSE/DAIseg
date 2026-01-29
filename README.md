@@ -81,7 +81,7 @@ python daiseg.py run.with.EM -json example.json
 
 
 
-# Workflow for samples (ingroup and outgroup) in 1000GP
+# 1000GP Workflow 
 
 Below is the complete execution pipeline for chromosome 22.
 
