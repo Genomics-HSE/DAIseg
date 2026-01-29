@@ -18,10 +18,15 @@ Planche, L., Ilina, A.V., & Shchur, V.L. (2024). Highly Accurate Method for Dete
 
 # General workflow 
 
-### 1. Create file with general information in significant genome positions
+### 1. Create file with general information in significant genome positions of modern genomes
 
 Processes a chromosome to create a .BED file with callability coverage statistics calculated in 1000 bp windows. Output BED Format  is 
-Tab-separated values with columns chr  start_i  end_i  num_variants  pos_in_mask  window_length  coverage
+Tab-separated values with columns 
+
+```bash
+chr  start_i  end_i  num_variants  pos_in_mask  window_length  coverage
+```
+
 
 Processing Logic
 
