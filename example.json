@@ -1,0 +1,62 @@
+{
+  "description": "DAIseg.simple configuration to run ",
+  "CHROM": "chr",  
+  "output": "out.assembly.chr", 
+  "prefix": "/path/to/output/directory/prefix",  
+  "files": {
+    "neand_files": {  # Neanderthal data files
+      "Vindija33.19": {
+        "bed": "/path/to/neand/vindija33.19/.bed",  
+        "vcf": "/path/to/neand/vindija33.19/.vcf.gz" 
+      },
+      "Altai": {
+        "bed": "/path/to/neand/altai/.bed", 
+        "vcf": "/path/to/neand/altai/.vcf.gz" 
+      }
+    },
+    "1000GP_files": {  # 1000 Genomes Project files
+      "bed": "/path/to/1000gp/strict/mask/.bed",  
+      "vcf": "preprocessed.vcf.gz",  
+      "vcf_initial": "/path/to/1000gp/.vcf.gz"  
+    },
+    "ancestral": {
+      "fasta": "/path/to/ancestral/reference/.fa" 
+    },
+    "reference": {
+      "fasta": "/path/to/reference/genome/.fa"  
+    },
+    "chr_lengths": "/path/to/chromosome/lengths/assembly.sizes"  
+  },
+  "samples": {  
+    "outgroup": [  
+      "OUT1", "OUT2", "OUT3", "OUT4", 
+      ...
+      ],
+    "ingroup": [  
+      "IN1", "IN2", "IN3", "IN4",
+      ... 
+    ],
+    "neand": [  
+      "Vindija33.19",
+      "AltaiNeandertal"
+    ]
+  },
+  "parameters_initial": {  
+    "admixture_proportion": 0.02,  
+    "introgression_time": 55000,  
+    "rr": 1e-08,  
+    "mutation": 1.25e-08,  
+    "window_length": 1000, 
+    "generation_time": 29,  
+    "t_archaic_c": 550000,  
+    "t_split_c": 70000,  
+    "t_introgression_c": 55000,  
+    "t_introgression": 55000  
+  },
+  "window_callability": { 
+    "Thousand_genomes": "coverage_file.bed", 
+    "Nd_1k_genomes": "coverage_file.bed"  
+  },
+  "data": "preprocessed_data.tsv",  
+  "gaps": "/path/to/genome/gaps/gap.txt" 
+}
