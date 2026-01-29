@@ -18,9 +18,41 @@ Planche, L., Ilina, A.V., & Shchur, V.L. (2024). Highly Accurate Method for Dete
 
 # General workflow 
 
-### 1. Create cover files 
+### 1. Create file with general information in significant genome positions
 
-### 2. Create file with general information in significant genome positions
+
+Processes a chromosome to create a BED file with callability coverage statistics calculated in 1000 bp windows.
+
+### **Parameters description**
+- `chromosome_length`: Total length of chromosome (bp)
+- `chromosome_name`: Chromosome identifier (e.g., `'chr1'`)
+- `variants_bed`: BED file/DataFrame of variant positions
+- `mask_bed`: BED file/DataFrame of callable positions (strict mask)
+- `window_size`: Window size in bp (default: `1000`)
+
+### **Output BED Format**
+Tab-separated values with columns:
+```bash
+chr  start_i  end_i  num_variants  pos_in_mask  window_length  coverage
+
+Processing Logic
+
+    Window Creation: Divides chromosome into non-overlapping window_size bp windows
+
+    Variant Counting: For each window, counts variants whose coordinates overlap the window
+
+    Mask Coverage: Calculates number of base positions overlapping the callability mask
+
+    Coverage Calculation: Computes coverage = pos_in_mask / window_length
+
+Example Output
+text
+```bash
+1    0       999    12    980    1000    0.980
+1    1000    1999    8     995    1000    0.995
+1    2000    2999    15    876    1000    0.876
+```
+### 2.
 
 
 
