@@ -29,10 +29,10 @@ chr  start_i  end_i  num_variants  pos_in_mask  window_length  coverage
 
 
 **Processing Logic.**
-    - Window Creation – Divides chromosome into non-overlapping window_size bp windows
-    - Variant Counting – For each window, counts variants whose coordinates overlap
-    - Mask Coverage – Calculates number of base positions overlapping the callability mask
-    - Coverage Calculation – Computes coverage = pos_in_mask / window_length
+    - Window Creation – Divides chromosome into non-overlapping window_size bp windows.
+    - Variant Counting – For each window, counts variants whose coordinates overlap with window.
+    - Mask Coverage – Calculates number of base positions overlapping the callability mask.
+    - Coverage Calculation – Computes coverage = pos_in_mask / window_length.
 
 
 
@@ -41,6 +41,22 @@ chr  start_i  end_i  num_variants  pos_in_mask  window_length  coverage
 1    1000    1999    8     995    1000    0.995
 1    2000    2999    15    876    1000    0.876
 ```
+
+### 1.1 Create file with general information in significant genome positions of archaic genomes
+
+Processes a chromosome to create a .BED file with callability coverage statistics calculated in 1000 bp windows. Output BED Format  is 
+Tab-separated values with columns 
+
+```bash
+chr  start_i  end_i  num_variants  pos_in_mask  window_length  coverage
+```
+
+
+**Processing Logic.**
+    - Window Creation – Divides chromosome into non-overlapping window_size bp windows.
+    - Variant Counting – For each window, counts variants whose coordinates overlap.
+    - Mask Coverage – Calculates number of base positions of **JOINED** neanderthals overlapping the callability mask.
+    - Coverage Calculation – Computes coverage = pos_in_mask / window_length.
 
 ### 2.
 
