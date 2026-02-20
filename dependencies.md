@@ -52,7 +52,7 @@ text
 | jq | extract.samples.sh, callability.sh | JSON parsing |
 
 ## Call Graph
-```
+```bash
 daiseg.py
   ├── run: hmm.py
   │     └── (obs.py, numpy, numba, scipy)
