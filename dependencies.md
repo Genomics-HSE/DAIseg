@@ -36,7 +36,7 @@ main.prep.py
 ├── imports: pysam, subprocess, time, preprocessing
 ├── requires: bcftools (external)
 └── input: JSON config, outputs: final TSV for HMM
-'''
+```
 
 
 ## External Dependencies
