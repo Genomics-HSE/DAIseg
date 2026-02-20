@@ -54,30 +54,9 @@ text
 ## Call Graph
 
 daiseg.py
-│
-├── run mode
-│   └── hmm.py
-│       ├── obs.py
-│       ├── numpy
-│       ├── numba
-│       └── scipy
-│
-├── run.with.EM mode
-│   └── em_alg.py
-│       ├── hmm.py
-│       ├── numpy
-│       └── numba
-│
-├── restrict_1kG mode
-│   └── extract.samples.sh
-│       └── bcftools
-│
-├── callability mode
-│   └── callability.sh
-│       └── bedtools
-│
-└── main.prep mode
-    └── main.prep.py
-        ├── preprocessing.py
-        ├── pysam
-        └── bcftools
+daiseg.py
+  ├── run: hmm.py (obs.py, numpy, numba, scipy)
+  ├── run.with.EM: em_alg.py (hmm.py, numpy, numba)
+  ├── restrict_1kG: extract.samples.sh (bcftools)
+  ├── callability: callability.sh (bedtools)
+  └── main.prep: main.prep.py (preprocessing.py, pysam, bcftools)
