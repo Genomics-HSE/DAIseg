@@ -52,32 +52,14 @@ text
 | jq | extract.samples.sh, callability.sh | JSON parsing |
 
 ## Call Graph
-
-graph TD
-    daiseg["daiseg.py"]
-    
-    subgraph Execution
-        daiseg --> run["run: hmm.py"]
-        run --> obs[obs.py]
-        run --> np1[numpy]
-        run --> nb1[numba]
-        run --> sp[scipy]
-        
-        daiseg --> em["run.with.EM: em_alg.py"]
-        em --> hmm[hmm.py]
-        em --> np2[numpy]
-        em --> nb2[numba]
-    end
-    
-    subgraph Data Prep
-        daiseg --> restrict["restrict_1kG: extract.samples.sh"]
-        restrict --> bcf1[bcftools]
-        
-        daiseg --> call["callability: callability.sh"]
-        call --> bed[bedtools]
-        
-        daiseg --> prep["main.prep: main.prep.py"]
-        prep --> preproc[preprocessing.py]
-        prep --> pysam[pysam]
-        prep --> bcf2[bcftools]
-    end
+daiseg.py
+  ├── run: hmm.py
+  │     └── (obs.py, numpy, numba, scipy)
+  ├── run.with.EM: em_alg.py
+  │     └── (hmm.py, numpy, numba)
+  ├── restrict_1kG: extract.samples.sh
+  │     └── (bcftools)
+  ├── callability: callability.sh
+  │     └── (bedtools)
+  └── main.prep: main.prep.py
+        └── (preprocessing.py, pysam, bcftools)
