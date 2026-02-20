@@ -52,6 +52,7 @@ text
 | jq | extract.samples.sh, callability.sh | JSON parsing |
 
 ## Call Graph
+```
 daiseg.py
   ├── run: hmm.py
   │     └── (obs.py, numpy, numba, scipy)
@@ -63,3 +64,4 @@ daiseg.py
   │     └── (bedtools)
   └── main.prep: main.prep.py
         └── (preprocessing.py, pysam, bcftools)
+```
