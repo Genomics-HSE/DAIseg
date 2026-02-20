@@ -20,6 +20,7 @@ text
 
 ## Helper Scripts
 
+```bash
 extract.samples.sh
 ├── called by: daiseg.py (restrict_1kG mode)
 ├── requires: bcftools, jq
@@ -35,7 +36,7 @@ main.prep.py
 ├── imports: pysam, subprocess, time, preprocessing
 ├── requires: bcftools (external)
 └── input: JSON config, outputs: final TSV for HMM
-text
+'''
 
 
 ## External Dependencies
