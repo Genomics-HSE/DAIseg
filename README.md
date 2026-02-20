@@ -136,7 +136,7 @@ echo "--- [3/4] Preprocessing Observations (VCF -> TSV) ---"
 python daiseg.py main.prep -json $CONF -threads $THR
 
 echo "--- [4/4] Running HMM  ---"
-python daiseg.py run -json $CONF
+python daiseg.py run.with.EM -json $CONF
 
 echo " Pipeline finished successfully."
 ```
