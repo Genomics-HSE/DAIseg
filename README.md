@@ -69,16 +69,16 @@ CHROM    POS	REF	ALT	Ancestral	Outgroup	Neand	Sample1_hap1	Sample1_hap2    ...  
 ```
 where each row corresponds to a single biallelic position where at least one difference exists in the target samples {Sample1.. SampleN} relative to Africans(Outgroup) or Neanderthals(Neand). REF, ALT and Ancestral are reference, alternative and ancestral alleles respectively. 
 
+### 3. Create config .json file
 
 
-
-### 3. Running HMM
+### 4. Running HMM
 Runs the Hidden Markov Model to infer introgression tracts.
 ```bash
 python daiseg.py run -json examle.json
 ```
 
-### 4. Using EM for estimation
+### 5. Using EM for estimation
 Runs the Hidden Markov Model to infer introgression tracts without transition estimates:
 ```bash
 python daiseg.py run.with.EM -json example.json
