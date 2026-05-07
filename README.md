@@ -17,6 +17,7 @@ Planche, L., Ilina, A.V., & Shchur, V.L. (2024). Highly Accurate Method for Dete
 
 
 # General workflow 
+To run DAIseg in its simplest way you need callability and prepared .tsv file.
 
 ### 1. Create file with general callability information of modern genomes
 
