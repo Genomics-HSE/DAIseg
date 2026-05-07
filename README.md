@@ -63,7 +63,11 @@ chr  start_i  end_i  num_variants  pos_in_mask  window_length  coverage
     - Mask Coverage – Calculates number of base positions of **JOINED** neanderthals overlapping the callability mask.
     - Coverage Calculation – Computes coverage = pos_in_mask / window_length.
 
-### 2.
+### 2. Create file  like
+```bash
+CHROM    POS	REF	ALT	Ancestral	Outgroup	Neand	Sample1_hap1	Sample1_hap2    ...   SampleN_hap1	SampleN_hap2 
+```
+where each row corresponds to a single biallelic position where at least one difference exists in the target samples {Sample1.. SampleN} relative to Africans(Outgroup) or Neanderthals(Neand). REF? ALT and Ancestral are reference, alternative and ancestral alleles respectively. 
 
 
 
