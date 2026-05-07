@@ -1,5 +1,3 @@
-# file to make observation sequence
-
 import csv
 import sys
 
@@ -34,12 +32,12 @@ def process_data(tsv_path, bed_path):
                 # Skip headers or comments
                 if parts[0].startswith('#') or parts[0].lower() == 'chrom':
                     continue
-                
+
                 # Normalize chromosome name
                 chrom = parts[0]
                 if not chrom.startswith('chr'):
                     chrom = 'chr' + chrom
-                
+
                 start = int(parts[1])
                 end = int(parts[2])
 
@@ -54,7 +52,7 @@ def process_data(tsv_path, bed_path):
                     windows_by_chrom[chrom] = []
                 windows_by_chrom[chrom].append(window)
     except FileNotFoundError:
-        raise FileNotFoundError(f"BED file not found: {bed_path}")
+        raise FileNotFoundError(f"[obs.py] BED file not found: {bed_path}")
 
     print(f"[obs.py] Loaded {len(all_windows_flat)} windows. Processing TSV...")
 
@@ -78,7 +76,7 @@ def process_data(tsv_path, bed_path):
                 elif 'chr' in header_map:
                     idx_c = header_map['chr']
                 else:
-                    idx_c = header_map['CHROM']  # fallback
+                    idx_c = header_map['CHROM']
 
                 idx_p = header_map['POS']
                 idx_anc = header_map['Ancestral']
@@ -109,7 +107,7 @@ def process_data(tsv_path, bed_path):
 
             for row_num, row in enumerate(reader):
                 if row_num % 100000 == 0 and row_num > 0:
-                    print(f"   📊 Processed lines: {row_num}...", end='\r')
+                    print(f"[obs.py] Processed lines: {row_num}...", end='\r')
 
                 try:
                     # Sync coordinates: BED is 0-based, TSV is 1-based
@@ -149,26 +147,32 @@ def process_data(tsv_path, bed_path):
                 # Skip if SNP is before start of current window
                 if pos < curr_win['s']:
                     continue
-
-                # === INSIDE WINDOW: CALCULATE STATS ===
+                # CALCULATE STATS
                 anc = row[idx_anc]
                 
                 if not anc.isupper():
                     continue
+                anc = row[idx_anc].strip().upper()
+                if anc not in ('A','C','G','T'):
+                    continue
+                out_raw = row[idx_out]
+                nean_raw = row[idx_nean]
 
-                out_set = parse_set_fast(row[idx_out])
-                nean_set = parse_set_fast(row[idx_nean])
-                
+                out_set = parse_set_fast(out_raw)
+                nean_set = parse_set_fast(nean_raw)
+                has_out = out_raw not in ('.', '', '{}')
+                has_nean = nean_raw not in ('.', '', '{}')
+
                 for hap_name, hap_idx in hap_indices:
-                    val = row[hap_idx]
-                    
-                    if val == '.' or val == anc:
+
+                    val = row[hap_idx].strip().upper()
+                    if val == '.' or len(val) != 1:
                         continue
-                    if val.upper() == anc:
+                    if val == anc:
                         continue
 
-                    is_diff_out = val not in out_set
-                    is_diff_nean = val not in nean_set
+                    is_diff_out = has_out and (val not in out_set)
+                    is_diff_nean = has_nean and (val not in nean_set)
 
                     if is_diff_out or is_diff_nean:
                         stats = curr_win['stats'][hap_name]
@@ -177,8 +181,9 @@ def process_data(tsv_path, bed_path):
                         if is_diff_nean:
                             stats[1] += 1
 
+
     except FileNotFoundError:
-        raise FileNotFoundError(f" Data file not found: {tsv_path}")
+        raise FileNotFoundError(f"[obs.py] Data file not found: {tsv_path}")
     
     print("\n [obs.py] Processing done. Aggregating results...")
     
@@ -186,7 +191,7 @@ def process_data(tsv_path, bed_path):
     for w in all_windows_flat:
         for name in hap_names:
             final_result[name].append(w['stats'][name])
-            
+
     return final_result
 
 

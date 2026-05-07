@@ -1,8 +1,6 @@
 #!/bin/bash
 
-# ============================================================================
 # extract.samples.sh - Extract specific samples from 1000 Genomes VCF file
-# ============================================================================
 
 set -e  # Exit immediately on any error
 
@@ -65,8 +63,14 @@ fi
 
 # --- RUN BCFTOOLS to extract samples ---
 echo "  Running bcftools..."
-bcftools view --threads "$nthr" -S "$SAMPLE_LIST"  "$FILE_1kG" -Oz -o "$FILTERED_1kG"
+#bcftools view --threads "$nthr" -S "$SAMPLE_LIST"  "$FILE_1kG" -Oz -o "$FILTERED_1kG"
 
+
+bcftools view --threads $nthr -S "$SAMPLE_LIST" --force-samples --trim-alt-alleles -Ou "$FILE_1kG" | \
+  bcftools norm --threads $nthr -m -any -Ou | \
+  bcftools view --threads $nthr -v snps -Ou | \
+  bcftools norm --threads $nthr -m +any -Ou | \
+  bcftools view --threads $nthr -m2 -M4 -Oz -o "$FILTERED_1kG"
 # --- CHECK 2: Verify output was created successfully ---
 if [[ ! -s "$FILTERED_1kG" ]]; then
     echo " CRITICAL ERROR: Output VCF is empty or failed to write."
@@ -74,7 +78,7 @@ if [[ ! -s "$FILTERED_1kG" ]]; then
 fi
 
 echo " Indexing VCF..."
-bcftools index --tbi --threads "$nthr" "$FILTERED_1kG"
+bcftools index -f --tbi --threads "$nthr" "$FILTERED_1kG"
 
 # Cleanup temporary files
 rm "$SAMPLE_LIST"

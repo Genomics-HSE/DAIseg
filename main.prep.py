@@ -2,9 +2,7 @@ import os
 import sys
 import subprocess
 import time
-
 import pysam
-
 import preprocessing as utils
 
 
@@ -22,13 +20,13 @@ def main():
 
     start_time = time.time()
 
-    # --- Load Config ---
+    # Config
     cfg = utils.load_config(sys.argv[1])
     chrom_raw = str(cfg["CHROM"])
     files = cfg["files"]
     prefix = cfg["prefix"]
 
-    # Get output filename from JSON or use default
+    # Get output filename from JSON 
     output_filename = cfg.get("data", f"prep.chr{chrom_raw.lstrip('chr').lstrip('CHR')}.tsv")
     output_file = os.path.join(prefix, output_filename)
 
@@ -41,7 +39,7 @@ def main():
     bed_strict = utils.expand_path(files["1000GP_files"]["bed"])
     anc_path = utils.expand_path(files["ancestral"]["fasta"])
 
-    # Debug: Check FASTA file
+    # Check FASTA file
     if not os.path.exists(anc_path):
         sys.exit(f"[ERROR] Ancestral FASTA not found: {anc_path}")
 
@@ -63,7 +61,7 @@ def main():
 
     print("Creating temporary files...", file=sys.stderr)
 
-    # --- STEP 1: Filter 1000 Genomes ---
+    # Filter 1000 Genomes ---
     tmp_1kg = f"{prefix}/temp_1kg_{chrom_no_prefix}.bcf"
     cmd_1kg = (
         f"bcftools view --threads 4 -r {chrom_raw} -R {bed_strict} "
@@ -75,7 +73,7 @@ def main():
     temp_files.append(tmp_1kg)
     temp_files.append(f"{tmp_1kg}.csi")
 
-    # --- STEP 2: Filter Neanderthals (Parallel) ---
+    # Filter Neanderthals (Parallel) ---
     print("Working with Neanderthals (Parallel)...", file=sys.stderr)
     neand_files = files.get("neand_files", {})
     nd_inputs = []
@@ -127,7 +125,7 @@ def main():
                     os.remove(f)
             sys.exit("[ERROR] One of the Neanderthal processing jobs failed.")
 
-    # --- STEP 3: Merge Pipeline ---
+    # Merge Pipeline ---
     files_str = " ".join([tmp_1kg] + nd_inputs)
 
     # Use %TGT to extract alleles (e.g., A/G) directly
@@ -136,7 +134,7 @@ def main():
         f"| bcftools query -H -f '%CHROM\\t%POS\\t%REF\\t%ALT[\\t%TGT]\\n'"
     )
 
-    # --- STEP 4: Load Ancestral Genome ---
+    # Load Ancestral Genome ---
     try:
         af = pysam.FastaFile(anc_path)
 
@@ -145,17 +143,17 @@ def main():
         print(f"[DEBUG] Available chromosomes in ancestral FASTA: {available_chroms}", file=sys.stderr)
         print(f"[DEBUG] Looking for chromosome related to: '{chrom_raw}'", file=sys.stderr)
 
-        # Smart chromosome finding for non-standard FASTA formats
+        # chr finding for non-standard FASTA formats
         chrom_seq = None
         chrom_name_used = None
 
-        # Case 1: If only one chromosome in FASTA, use it
+        # If only one chromosome in FASTA, use it
         if len(available_chroms) == 1:
             chrom_name_used = available_chroms[0]
             chrom_seq = af.fetch(chrom_name_used)
             print(f"[DEBUG] Using only available chromosome: '{chrom_name_used}'", file=sys.stderr)
 
-        # Case 2: Try to find chromosome by patterns
+        # Try to find chromosome by patterns
         else:
             # Create search patterns
             search_terms = [
@@ -176,7 +174,7 @@ def main():
                 if chrom_seq:
                     break
 
-        # Case 3: If still not found, try exact match or partial match
+        #  If still not found, try exact match or partial match
         if chrom_seq is None:
             for chrom_name in available_chroms:
                 # Try exact match first
@@ -195,7 +193,7 @@ def main():
                         print(f"[DEBUG] Found partial match: '{chrom_name_used}'", file=sys.stderr)
                         break
 
-        # Case 4: Final fallback - if nothing found
+        #  Final fallback - if nothing found
         if chrom_seq is None:
             error_msg = f"Chromosome '{chrom_raw}' not found in Ancestral FASTA.\n"
             error_msg += f"Available chromosomes: {available_chroms}\n"
@@ -212,12 +210,11 @@ def main():
                 os.remove(f)
         sys.exit(f"[ERROR] Ancestral fasta issue: {e}")
 
-    # --- STEP 5: Run Pipeline and Write to File ---
+    # Run Pipeline and Write to File ---
     process = subprocess.Popen(pipeline_cmd, shell=True, stdout=subprocess.PIPE,
                                text=True, executable='/bin/bash')
 
     try:
-        # Open output file for writing
         with open(output_file, 'w') as out_f:
             header_line = process.stdout.readline().strip()
             if not header_line.startswith("#"):
@@ -236,7 +233,7 @@ def main():
             # Map columns (Strict JSON order)
             idx_chrom, idx_pos, idx_ref, idx_alt, cols_yri, cols_ibs, cols_nd = utils.map_columns(headers, cfg["samples"])
 
-            # === Create Output Header ===
+            # Create Output Header ===
             # Split Ingroup into Sample_1 and Sample_2
             ibs_split_headers = []
             for i in cols_ibs:
@@ -250,7 +247,7 @@ def main():
             out_f.write(f"#CHROM\tPOS\tREF\tALT\tAncestral\tOutgroup\tNeand\t{ibs_header_str}\n")
 
             row_count = 0
-            # === Process Rows ===
+            # Process Rows ===
             for line in process.stdout:
                 parts = line.strip().split('\t')
                 if len(parts) != len(headers):
@@ -284,7 +281,7 @@ def main():
 
                     s1 = get_alleles_set(cols_yri)
 
-                    # --- INGROUP PROCESSING (Split Haplotypes) ---
+                    # INGROUP PROCESSING (Split Haplotypes) ---
                     s3 = set()
                     ibs_row_values = []
 
@@ -314,7 +311,7 @@ def main():
 
                     s2 = get_alleles_set(cols_nd)
 
-                    # --- Site Filtering ---
+                    # Site Filtering
                     # Keep if Ingroup differs from Outgroup OR Neanderthals
                     diff_yri = s3 - s1
                     diff_nd = s3 - s2

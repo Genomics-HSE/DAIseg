@@ -1,6 +1,6 @@
 import json
 import multiprocessing
-import sys
+import sys, os
 from pprint import pprint
 
 import numpy as np
@@ -8,7 +8,7 @@ import pandas as pd
 from numba import jit, prange
 from scipy.stats import poisson
 
-import obs  # module for creating observation sequence
+import obs
 
 
 def create_observations(tsv, bed):
@@ -17,33 +17,33 @@ def create_observations(tsv, bed):
         result = obs.process_data(tsv, bed)
         print(' Observation sequences for HMM created successfully!')
     except Exception as e:
-        print(f"!!! Critical error: {e}")
+        print(f"Critical error: {e}")
         sys.exit(1)
-    
+
     # Get number of states
     max_val, max_info = obs.get_number_states(result)
     print(f'Max differences in 1000bp window: {max_val + 1}')
-    
+
     return result, max_val + 1
 
 
 def prepare_matrices_from_dict(data_dict):
     """Converts haplotype dictionary into NumPy matrices (O1, O2) preserving insertion order."""
-    
-    # 1. Keep original insertion order
+
+    # Keep original insertion order
     hap_names = list(data_dict.keys())
-    
+
     M = len(hap_names)  # Number of haplotypes
     if M == 0:
         raise ValueError("Dictionary contains no haplotypes.")
     
     N = len(data_dict[hap_names[0]])  # Number of windows
     
-    # 2. Initialize matrices
+    # Initialize matrices
     O1 = np.zeros((M, N), dtype=np.int32)
     O2 = np.zeros((M, N), dtype=np.int32)
     
-    # 3. Fill matrices
+    # Fill matrices
     for i, hap in enumerate(hap_names):
         hap_data = np.array(data_dict[hap])  # shape (N, 2)
         O1[i, :] = hap_data[:, 0]  # Column 0 → O1
@@ -92,28 +92,28 @@ def get_log_A(L, rr, Ti, a):
 
 
 def initB_arch_cover(lmbd, n_st, cover_1k, cover_nd):
-    """Computes full Poisson emission probability matrix (reference implementation)."""
+    """Computes full Poisson emission probability matrix."""
     
-    # 1. Define lambdas (means)
+    # Define lambdas (means)
     mean_n = lmbd[1] * cover_nd
     mean_n2 = lmbd[1] * cover_1k
     mean_af = lmbd[2] * cover_1k
     mean_i2 = lmbd[0] * cover_nd
     
-    # 2. Helper function to generate probability vectors
+    # Helper function to generate probability vectors
     def get_prob_vec(mu):
         k = np.arange(1, n_st)  # Indices from 1 to n_st-1
         probs = poisson.pmf(k, mu)  # Vectorized Poisson calculation
         p0 = 1.0 - np.sum(probs)  # Residual mass for index 0
         return np.concatenate(([p0], probs))
     
-    # 3. Generate vectors
+    # Generate vectors
     Paf = get_prob_vec(mean_af)
     Pn = get_prob_vec(mean_n)
     Pn2 = get_prob_vec(mean_n2)
     Pi2 = get_prob_vec(mean_i2)
     
-    # 4. Construct emission matrix
+    # Construct emission matrix
     B = np.empty((2, n_st, n_st))
     B[0] = np.outer(Paf, Pn)
     B[1] = np.outer(Pn2, Pi2)
@@ -133,7 +133,6 @@ def compute_emissions_custom(O1, O2, L1, L2, lmbd):
     rate_i = lmbd[2]
     rate_n = lmbd[0]
     rate_af = lmbd[1]
-    rate_i = lmbd[2]
     
     # Epsilon to avoid log(0)
     eps = 1e-300
@@ -161,11 +160,11 @@ def viterbi_fast(log_emit, log_trans, log_start):
         viterbi = np.zeros((N, n_states))
         backpointer = np.zeros((N, n_states), dtype=np.int32)
         
-        # 1. Initialization
+        # Initialization
         for s in range(n_states):
             viterbi[0, s] = log_start[s] + log_emit[m, 0, s]
         
-        # 2. Forward Pass
+        # Forward Pass
         for i in range(1, N):
             for s in range(n_states):
                 # Find max(prev_prob + transition)
@@ -181,7 +180,7 @@ def viterbi_fast(log_emit, log_trans, log_start):
                 viterbi[i, s] = max_val + log_emit[m, i, s]
                 backpointer[i, s] = best_prev
         
-        # 3. Backtrace
+        #  Backtrace
         # Decide final state
         if viterbi[N - 1, 0] > viterbi[N - 1, 1]:
             paths[m, N - 1] = 0
@@ -196,8 +195,7 @@ def viterbi_fast(log_emit, log_trans, log_start):
 
 
 def run_hmm(O1, O2, L1, L2, lmbd, rr):
-    """Orchestrates HMM pipeline: emissions, transitions, and Viterbi."""
-    
+        
     print("Calculating emission scores...")
     log_emissions = compute_emissions_custom(O1, O2, L1, L2, lmbd)
     
@@ -231,67 +229,65 @@ def get_tracts(vector, step=1000):
     return {"Modern": result[0], "Archaic": result[1]}
 
 
-def clean_gaps(dct, gap_file, target_chrom):
-    """Filters genomic regions defined in gap file from inferred tracts."""
-    
-    print('Processing gaps...')
-    raw_gaps = []
-    
-    try:
-        with open(gap_file, 'r') as f:
-            for line in f:
-                parts = line.strip().split()
-                if len(parts) >= 4 and parts[1] == 'chr' + target_chrom:
-                    raw_gaps.append((int(parts[2]), int(parts[3]) - 1))
-    except FileNotFoundError:
-        print(" !!! Gap file not found.")
-        return dct
-    
 
-    
-    # Merge overlapping gaps
-    merged_gaps = []
-    if raw_gaps:
-        raw_gaps.sort()
-        merged_gaps = [raw_gaps[0]]
-        for curr in raw_gaps[1:]:
-            prev = merged_gaps[-1]
-            if curr[0] <= prev[1] + 1:
-                merged_gaps[-1] = (prev[0], max(prev[1], curr[1]))
-            else:
-                merged_gaps.append(curr)
-    
-    # Helper to subtract gaps from interval
-    def subtract(interval, gaps):
-        start, end = interval
-        res = []
-        curr = start
-        for g_s, g_e in gaps:
-            if g_e < curr:
-                continue
-            if g_s > end:
-                break
-            if curr < g_s:
-                res.append((curr, g_s - 1))
-            curr = max(curr, g_e + 1)
-        if curr <= end:
-            res.append((curr, end))
-        return res
-    
-    # Process dictionary
+
+
+def clean_gaps(dct, gap_file, target_chrom, gap_merge_distance=500000):
+    """
+    Subtracts gaps from segments
+    """
+
+    def norm(c): 
+        return str(c).lower().replace('chr', '')
+
+    t_norm = norm(target_chrom)
+
+    if not gap_file or not os.path.exists(gap_file):
+        return dct
+
+    # Load and join closed gaps 
+    raw_gaps = []
+    with open(gap_file, 'r') as f:
+        for line in f:
+            p = line.split()
+            if len(p) >= 4 and norm(p[1]) == t_norm:
+                raw_gaps.append((int(p[2]), int(p[3])))
+
+    if not raw_gaps: return dct
+    raw_gaps.sort()
+
+    merged = []
+    cs, ce = raw_gaps[0]
+    for s, e in raw_gaps[1:]:
+        if s <= ce + gap_merge_distance:
+            ce = max(ce, e)
+        else:
+            merged.append((cs, ce)); cs, ce = s, e
+    merged.append((cs, ce))
+
+    #  Subtract gaps
     new_dct = {}
     for sample, categories in dct.items():
-        new_dct[sample] = {}
-        for cat, intervals in categories.items():
-            cleaned_list = []
-            for interval in intervals:
-                if not merged_gaps:
-                    cleaned_list.append(interval)
-                else:
-                    cleaned_list.extend(subtract(interval, merged_gaps))
-            new_dct[sample][cat] = cleaned_list
-    
+        new_cats = {}
+        for cat_name, intervals in categories.items():
+            cleaned = []
+            for s_start, s_end in intervals:
+                curr = s_start
+                for g_s, g_e in merged:
+                    if g_e < curr: continue
+                    if g_s > s_end: break
+                    if curr < g_s:
+                        cleaned.append((curr, g_s - 1))
+                    curr = max(curr, g_e + 1)
+                if curr < s_end:
+                    cleaned.append((curr, s_end))
+            
+            # Saving
+            new_cats[cat_name] = [(s, e) for s, e in cleaned if s < e and (e - s + 1) >= 1000 ]
+        new_dct[sample] = new_cats
     return new_dct
+
+
 
 
 def run_daiseg(json_file):
@@ -308,7 +304,6 @@ def run_daiseg(json_file):
     
     if len(obs_seq) > 0:
         first_key = list(obs_seq.keys())[0]
-#        print(f"Sample length: {len(obs_seq[first_key])}")
 
     
     # Extract parameters
@@ -319,15 +314,18 @@ def run_daiseg(json_file):
     l = prms['window_length']
     
     d = mu * l / gen_time
+    Ti_generations = prms['t_introgression'] / gen_time 
+    a = prms['admixture_proportion']
+
     lambda_0 = [
         d * prms['t_archaic_c'],
         d * prms['t_split_c'],
         d * prms['t_introgression_c'],
-        d * prms['t_introgression'],
-        prms['admixture_proportion']
+        Ti_generations, 
+        a
     ]
     
-    # Load callability files
+    # Load callability 
     cal_1kG = np.loadtxt(data['prefix'] + '/' + data["window_callability"]["Thousand_genomes"], usecols=-1)
     cal_nd_1kG = np.loadtxt(data['prefix'] + '/' + data["window_callability"]["Nd_1k_genomes"], usecols=-1)
     
@@ -348,13 +346,15 @@ def run_daiseg(json_file):
     # Remove gaps
     out_dict_new = clean_gaps(out_dict, data["gaps"], data["CHROM"])
     
+    print(' Check the ... ', out_dict_new == out_dict)
     # Save TSV results
     output_tsv = f"{data['prefix']}/{data['output']}.tsv"
     print(f" Saving TSV results to: {output_tsv}")
     
+
     rows = []
     with open(output_tsv, "w", encoding="utf-8") as f:
-        f.write("Sample\tCHROM\tStart\tEnd\tLength\n")
+        f.write("Sample\tCHR\tStart\tEnd\tLength\n")
         for sample_name, tracks in out_dict_new.items():
             archaic_intervals = tracks.get('Archaic', [])
             for start, end in archaic_intervals:
@@ -375,7 +375,7 @@ _original_logic = run_daiseg
 
 
 def _worker_proxy(filepath):
-    """Helper function for pickle compatibility (must be defined globally)."""
+    """Helper function for pickle compatibility """
     return _original_logic(filepath)
 
 
@@ -384,12 +384,12 @@ def run_daiseg(json_input):
     Wrapper: handles single file (string) or list of files (parallel).
     """
 
-    # Single file → run normally БЕЗ multiprocessing
+    # Single file → run normally without multiprocessing
     if not isinstance(json_input, list):
         print(f" Processing single file (no parallelization needed)...")
         return _original_logic(json_input)
 
-    # Single file in list → тоже без multiprocessing
+    # Single file in list → without multiprocessing
     if len(json_input) == 1:
         print(f" Processing single file (sequential)...")
         return [_original_logic(json_input[0])]
@@ -399,7 +399,7 @@ def run_daiseg(json_input):
         return [_original_logic(f) for f in json_input]
 
     # Множество файлов → параллельно
-    MAX_WORKERS = 64
+    MAX_WORKERS = 32
     cpu_count = multiprocessing.cpu_count()
     pool_size = min(cpu_count - 1, MAX_WORKERS, len(json_input))
     pool_size = max(pool_size, 1)
