@@ -1,4 +1,4 @@
-# DAIseg (grch38 is under construction)
+# DAIseg 
 **A Hidden Markov Model (HMM) for detecting archaic introgression in modern genomes.**
 
 ## 📌 Overview
