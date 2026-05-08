@@ -88,12 +88,13 @@ Description: Compressed VCF file containing variant calls for the Altai Neandert
 ### 1. 1000 Genomes Project Strict Mask
 ```bash
 # Download the strict mask from 1000 Genomes
-wget http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/supporting/accessible_genome_masks/20140520.strict_mask.autosomes.bed
+wget -c http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/supporting/accessible_genome_masks/20140520.strict_mask.autosomes.bed
 
-# Split by chromosome
+# Split by chromosome and remove chr prefix
 for chr in {1..22}; do
-    grep -w "chr${chr}" 20140520.strict_mask.autosomes.bed \
+    awk -v c="chr${chr}" '$1 == c' 20140520.strict_mask.autosomes.bed \
     | sed 's/^chr//' \
+    > "chr${chr}.bed"
 done
 ```
 Description: Downloads the strict accessibility mask from 1000 Genomes Project (20140520 version) and splits it into individual chromosome files.
