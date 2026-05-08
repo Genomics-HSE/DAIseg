@@ -92,7 +92,8 @@ wget http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/supporting/acces
 
 # Split by chromosome
 for chr in {1..22}; do
-    grep -w "chr${chr}" 20140520.strict_mask.autosomes.bed > "chr${chr}.bed"
+    grep -w "chr${chr}" 20140520.strict_mask.autosomes.bed \
+    | sed 's/^chr//' \
 done
 ```
 Description: Downloads the strict accessibility mask from 1000 Genomes Project (20140520 version) and splits it into individual chromosome files.
