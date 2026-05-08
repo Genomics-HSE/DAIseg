@@ -14,6 +14,8 @@ Description: Downloads the hs37d5 reference genome, which is the GRCh37 assembly
 # Download ancestral genome for GRCh37 (Ensembl release 71)
 wget -c ftp://ftp.ensembl.org/pub/release-71/fasta/ancestral_alleles/homo_sapiens_ancestor_GRCh37_e71.tar.bz2
 
+tar -xjf homo_sapiens_ancestor_GRCh37_e71.tar.bz2
+
 ```
 Description: Downloads the inferred ancestral allele sequences for human genome assembly GRCh37 from Ensembl release 71, used for evolutionary comparisons and identifying derived alleles.
 
