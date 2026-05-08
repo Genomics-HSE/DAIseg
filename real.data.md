@@ -4,7 +4,7 @@
 
 ```bash
 # Download GRCh37 reference genome (hs37d5)
-wget ftp://ftp.1000genomes.ebi.ac.uk//vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz
+wget -c ftp://ftp.1000genomes.ebi.ac.uk//vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz
 ```
 Description: Downloads the hs37d5 reference genome, which is the GRCh37 assembly with added decoy sequences used by the 1000 Genomes Project to improve mapping accuracy.
 
@@ -12,7 +12,7 @@ Description: Downloads the hs37d5 reference genome, which is the GRCh37 assembly
 ```bash
 
 # Download ancestral genome for GRCh37 (Ensembl release 71)
-wget ftp://ftp.ensembl.org/pub/release-71/fasta/ancestral_alleles/homo_sapiens_ancestor_GRCh37_e71.tar.bz2
+wget -c ftp://ftp.ensembl.org/pub/release-71/fasta/ancestral_alleles/homo_sapiens_ancestor_GRCh37_e71.tar.bz2
 ```
 Description: Downloads the inferred ancestral allele sequences for human genome assembly GRCh37 from Ensembl release 71, used for evolutionary comparisons and identifying derived alleles.
 
@@ -20,7 +20,7 @@ Description: Downloads the inferred ancestral allele sequences for human genome 
 ```bash
 
 # Download chromosome sizes for hg19
-wget https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes
+wget -c https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes
 
 # Remove 'chr' prefix from chromosome names
 sed 's/^chr//' hg19.chrom.sizes > hg19.chrom.len
