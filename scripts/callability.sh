@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # ============================================================================
 # callability.sh - Calculate genomic callability masks for 1000G and Neanderthal
 # ============================================================================
 
-set -e  # Stop immediately if any command fails
+set -e # Stop immediately if any command fails
 
 JSON=$1
 CORES=$2
@@ -31,7 +31,7 @@ FILE_COV_ND_NAME="$(jq -r '.window_callability.Nd_1k_genomes' "${JSON}")"
 
 OUT_COV_1KG="$PREFIX/$FILE_COV_1KG_NAME"
 OUT_COV_ND="$PREFIX/$FILE_COV_ND_NAME"
-TEMP_MASK="$PREFIX/temp_intersect_mask.bed"  # Temporary file for mask intersection
+TEMP_MASK="$PREFIX/temp_intersect_mask.bed" # Temporary file for mask intersection
 
 # Performance settings for sort
 SORT_ARGS="-S 4G --parallel=$CORES"
@@ -62,7 +62,7 @@ echo " Neand Output: $OUT_COV_ND"
 
 # Check required tools
 for cmd in jq bedtools sort zcat; do
-    if ! command -v "$cmd" &> /dev/null; then
+    if ! command -v "$cmd" &>/dev/null; then
         echo " Error: '$cmd' not found."
         exit 1
     fi
@@ -72,18 +72,18 @@ done
 # (Neanderthal_1 ∪ Neanderthal_2) ∩ (1000GP Strict Mask)
 echo "  Generating merged mask..."
 
-jq -r '.files.neand_files[].bed' "$JSON" | sed "s|^~|$HOME|" \
-| xargs -I {} zcat -f {} \
-| grep -v "^#" \
-| sort $SORT_ARGS -k1,1 -k2,2n \
-| bedtools merge -i - \
-| bedtools intersect -sorted \
-    -a <(zcat -f "$STRICT_MASK_PATH" | grep -v "^#" | sort $SORT_ARGS -k1,1 -k2,2n) \
-    -b - > "$TEMP_MASK"
+jq -r '.files.neand_files[].bed' "$JSON" | sed "s|^~|$HOME|" |
+    xargs -I {} zcat -f {} |
+    grep -v "^#" |
+    sort $SORT_ARGS -k1,1 -k2,2n |
+    bedtools merge -i - |
+    bedtools intersect -sorted \
+        -a <(zcat -f "$STRICT_MASK_PATH" | grep -v "^#" | sort $SORT_ARGS -k1,1 -k2,2n) \
+        -b - >"$TEMP_MASK"
 
 # --- STEP 2: Filter Chromosome Size ---
 echo " Filtering chromosome size..."
-awk -v c="$CHROM_TARGET" '$1 == c' "$SIZES_FILE" > temp_current.size
+awk -v c="$CHROM_TARGET" '$1 == c' "$SIZES_FILE" >temp_current.size
 
 if [ ! -s temp_current.size ]; then
     echo " Error: Chromosome '$CHROM_TARGET' not found in sizes file."
@@ -94,12 +94,12 @@ fi
 # Calculate coverage in 1000bp windows
 
 echo " Calculating Neanderthal intersection coverage..."
-bedtools makewindows -g temp_current.size -w 1000 \
-| bedtools coverage -a stdin -b "$TEMP_MASK" > "$OUT_COV_ND"
+bedtools makewindows -g temp_current.size -w 1000 |
+    bedtools coverage -a stdin -b "$TEMP_MASK" >"$OUT_COV_ND"
 
 echo " Calculating 1kG coverage..."
-bedtools makewindows -g temp_current.size -w 1000 \
-| bedtools coverage -a stdin -b "$STRICT_MASK_PATH" > "$OUT_COV_1KG"
+bedtools makewindows -g temp_current.size -w 1000 |
+    bedtools coverage -a stdin -b "$STRICT_MASK_PATH" >"$OUT_COV_1KG"
 
 # --- Cleanup ---
 rm -f temp_current.size "$TEMP_MASK"
@@ -108,4 +108,3 @@ echo ""
 echo " Done. Callability files created:"
 echo "   - $OUT_COV_ND"
 echo "   - $OUT_COV_1KG"
-

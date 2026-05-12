@@ -1,10 +1,11 @@
 import numpy as np
 from numba import jit, prange, config, set_num_threads
 import json
-import hmm
 import gc
 import sys, os
 import pandas as pd
+
+import daiseg.hmm as hmm
 
 # restruc numba 
 if 'NUMBA_NUM_THREADS' not in os.environ:

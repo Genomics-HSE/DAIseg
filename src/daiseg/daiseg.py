@@ -4,8 +4,9 @@ import os
 import subprocess
 import sys
 
-import hmm
-import em_alg
+import daiseg.hmm as hmm
+import daiseg.em_alg as em_alg
+import daiseg.prep as prep
 
 
 
@@ -27,15 +28,13 @@ def main():
 
 
     # 2. Run with EM 
-    decode_subparser = subparser.add_parser('run.with.EM', help='Run Global EM training and Inference')
+    decode_subparser = subparser.add_parser('run_EM', help='Run Global EM training and Inference')
     decode_subparser.add_argument("-threads", help="Number of threads (optional)", type=int)
     decode_subparser.add_argument("-jsons", help="List of JSON files (e.g. sims/*.json)", nargs='+', required=True)
     decode_subparser.add_argument("-out", help="Path to save merged results (e.g. all.results.tsv)", type=str, required=False)
 
-
-
     # 2.1 Run with EM + Matrix Update 
-    decode_parser = subparser.add_parser('run.EM.v2', help='Run EM optimizing Transitions ')
+    decode_parser = subparser.add_parser('run_EM_trans', help='Run EM optimizing Transitions ')
     decode_parser.add_argument("-threads", help="Threads", type=int, default=4)
     decode_parser.add_argument("-jsons", help="List of JSON files", nargs='+', required=True)
     decode_parser.add_argument("-out", help="Path to save results", type=str)
@@ -50,7 +49,7 @@ def main():
     decode_subparser.add_argument("-threads", type=int, required=True)
     decode_subparser.add_argument("-json", type=str, required=True)
 
-    decode_subparser = subparser.add_parser('main.prep', help='Helper')
+    decode_subparser = subparser.add_parser('prep', help='Helper')
     decode_subparser.add_argument("-threads", type=int, required=True)
     decode_subparser.add_argument("-json", type=str, required=True)
 
@@ -59,12 +58,12 @@ def main():
     if args.mode == 'run':
         hmm.run_daiseg(args.json)
 
-    elif args.mode == 'run.with.EM':
-        print(f"Starting Batch EM pipeline on {len(args.jsons)} files...")
+    elif args.mode == 'run_EM':
+        print(f"Starting Batch EM pipeline for {len(args.jsons)} config files...")
         em_alg.run_batch_em_pipeline(args.jsons, output_combined_file=args.out)
 
-    elif args.mode == 'run.EM.v2':
-        print(f"Starting optimized EM  ...")
+    elif args.mode == 'run_EM_trans':
+        print(f"Starting optimized EM pipeline for {len(args.jsons)} config files...")
         em_alg.run_batch_em_pipeline_v2(
             args.jsons,
             output_combined_file=args.out,
@@ -74,38 +73,19 @@ def main():
 
     elif args.mode == 'restrict_1kG':
         result = subprocess.run(
-            ['bash', 'extract.samples.sh', args.json, str(args.threads)],
-            capture_output=True,
+            ['scripts/extract_samples.sh', args.json, str(args.threads)],
             text=True,
             check=True
         )
-        print("STDOUT:", result.stdout)
-        print("STDERR:", result.stderr)
 
     elif args.mode == 'callability':
         result = subprocess.run(
-            ['bash', 'callability.sh', args.json, str(args.threads)],
-            capture_output=True,
-            text=True
+            ['scripts/callability.sh', args.json, str(args.threads)],
+            text=True, check=True
         )
-        print("STDOUT:", result.stdout)
-        print("STDERR:", result.stderr)
 
     elif args.mode == 'main.prep':
-        with open(args.json, 'r') as f:
-            jsn = json.load(f)
-
-        filename = jsn.get("data", f"prep.chr{jsn['CHROM']}.tsv")
-        output_file = os.path.join(jsn["prefix"], filename)
-
-        print(f"Running pipeline... Target Output: {output_file}")
-
-        subprocess.run(
-            ['python', '-u', 'main.prep.py', args.json, str(args.threads)],
-            text=True,
-            check=True
-        )
-        print("Done.")
+        prep.run(args.json)
 
 if __name__ == "__main__":
     main()

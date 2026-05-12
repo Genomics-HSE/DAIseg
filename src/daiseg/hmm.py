@@ -2,13 +2,12 @@ import json
 import multiprocessing
 import sys, os
 from pprint import pprint
-
 import numpy as np
 import pandas as pd
 from numba import jit, prange
 from scipy.stats import poisson
 
-import obs
+import daiseg.obs as obs
 
 
 def create_observations(tsv, bed):

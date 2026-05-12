@@ -26,6 +26,10 @@
             name = "daiseg";
             buildInputs = [
               wget
+              zlib
+              bzip2
+              xz
+              htslib
               ouch
               ruff
               jq

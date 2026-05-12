@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # extract.samples.sh - Extract specific samples from 1000 Genomes VCF file
 
-set -e  # Exit immediately on any error
+set -e # Exit immediately on any error
 
 JSON=$1
 nthr=$2
@@ -50,9 +50,9 @@ echo " Step 0: Filtering 1000 Genomes samples..."
 
 # Create temporary sample list
 SAMPLE_LIST=$(mktemp)
-jq -r '.samples.ingroup[], .samples.outgroup[]' "$JSON" > "$SAMPLE_LIST"
+jq -r '.samples.ingroup[], .samples.outgroup[]' "$JSON" >"$SAMPLE_LIST"
 
-SAMPLE_COUNT=$(wc -l < "$SAMPLE_LIST")
+SAMPLE_COUNT=$(wc -l <"$SAMPLE_LIST")
 echo " Extracting $SAMPLE_COUNT samples..."
 
 if [[ "$SAMPLE_COUNT" -eq 0 ]]; then
@@ -65,12 +65,11 @@ fi
 echo "  Running bcftools..."
 #bcftools view --threads "$nthr" -S "$SAMPLE_LIST"  "$FILE_1kG" -Oz -o "$FILTERED_1kG"
 
-
-bcftools view --threads $nthr -S "$SAMPLE_LIST" --force-samples --trim-alt-alleles -Ou "$FILE_1kG" | \
-  bcftools norm --threads $nthr -m -any -Ou | \
-  bcftools view --threads $nthr -v snps -Ou | \
-  bcftools norm --threads $nthr -m +any -Ou | \
-  bcftools view --threads $nthr -m2 -M4 -Oz -o "$FILTERED_1kG"
+bcftools view --threads $nthr -S "$SAMPLE_LIST" --force-samples --trim-alt-alleles -Ou "$FILE_1kG" |
+    bcftools norm --threads $nthr -m -any -Ou |
+    bcftools view --threads $nthr -v snps -Ou |
+    bcftools norm --threads $nthr -m +any -Ou |
+    bcftools view --threads $nthr -m2 -M4 -Oz -o "$FILTERED_1kG"
 # --- CHECK 2: Verify output was created successfully ---
 if [[ ! -s "$FILTERED_1kG" ]]; then
     echo " CRITICAL ERROR: Output VCF is empty or failed to write."

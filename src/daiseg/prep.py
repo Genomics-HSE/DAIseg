@@ -3,7 +3,7 @@ import sys
 import subprocess
 import time
 import pysam
-import preprocessing as utils
+import daiseg.utils as utils
 
 
 def run_step(cmd, desc):
@@ -14,14 +14,12 @@ def run_step(cmd, desc):
         sys.exit(f"[ERROR] Failed at step: {desc}")
 
 
-def main():
-    if len(sys.argv) < 2:
-        sys.exit(" Usage: python main.prep.py <config.json>")
+def run(json_path):
 
     start_time = time.time()
 
     # Config
-    cfg = utils.load_config(sys.argv[1])
+    cfg = utils.load_config(json_path)
     chrom_raw = str(cfg["CHROM"])
     files = cfg["files"]
     prefix = cfg["prefix"]
@@ -372,8 +370,3 @@ def main():
 
     elapsed = time.time() - start_time
     print(f"[INFO] Pipeline finished in {elapsed:.2f} seconds", file=sys.stderr)
-
-
-if __name__ == "__main__":
-    main()
-
