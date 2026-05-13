@@ -1,5 +1,5 @@
 [project]
-authors = [{ name = "Egor Lappo", email = "lappo@stanford.edu" }]
+authors = [{ name = "Anna Ilina", email = "email@hse.ru" }]
 name = "DAIseg"
 requires-python = ">= 3.11"
 version = "0.1.0"

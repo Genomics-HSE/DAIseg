@@ -3,6 +3,7 @@ import json
 import os
 import subprocess
 import sys
+from pathlib import Path
 
 import daiseg.hmm as hmm
 import daiseg.em_alg as em_alg
@@ -55,6 +56,9 @@ def main():
 
     args = parser.parse_args()
 
+    # get scripts dir as a subling to python source
+    scripts_dir = Path(__file__).parent / "scripts"
+
     if args.mode == 'run':
         hmm.run_daiseg(args.json)
 
@@ -71,16 +75,17 @@ def main():
             max_iter=args.iter
         )
 
+
     elif args.mode == 'restrict_1kG':
         result = subprocess.run(
-            ['scripts/extract_samples.sh', args.json, str(args.threads)],
+            [str(scripts_dir / 'extract_samples.sh'), args.json, str(args.threads)],
             text=True,
             check=True
         )
 
     elif args.mode == 'callability':
         result = subprocess.run(
-            ['scripts/callability.sh', args.json],
+            [str(scripts_dir / 'callability.sh'), args.json],
             text=True, check=True
         )
 

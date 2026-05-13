@@ -6,6 +6,16 @@ Planche, L., Ilina, A.V., & Shchur, V.L. (2024). Highly Accurate Method for Dete
 
 ### Installation
 
+DAISeg is a Python package, so you can install it from Github to your Python environment.
+
+We recommend using [https://pixi.prefix.dev/latest/installation/](`pixi`) to manage your research environment. With `pixi`, DAIseg can be installed with 
+
+``` bash
+pixi add --git https://github.com/Genomics-HSE/DAISeg 
+```
+
+Example pixi environment is provided in the `examples/` directory, see "Usage" below.
+
 ### Usage 
 
 Here is an example of how to run DAIseg on chromosome 22 with hg19 1000Genomes samples.
@@ -85,7 +95,7 @@ This will create the `<prefix>/preprocessed.vcf.gz` file in your output prefix d
 **3.** Create callability masks. Run 
 
 ``` bash
-pixi run daiseg callability -json examples/grch37/example_config.json
+pixi run daiseg callability -json example_config.json
 ```
 
 This will create the callability/coverage for modern samples (`<prefix>/1kg_coverage.bed`) and for Neanderthal samples (`<prefix>/nd_1kg_coverage.bed`).
@@ -93,7 +103,7 @@ This will create the callability/coverage for modern samples (`<prefix>/1kg_cove
 **4.** Prepare input data for the HMM. Run 
 
 ``` bash
-pixi run daiseg prep -json examples/grch37/example_config.json -threads 8
+pixi run daiseg prep -json example_config.json -threads 8
 ```
 
 This will create `<prefix>/preprocessed_data.tsv` -- the file tabulating all sites that will be used by the HMM.
@@ -109,13 +119,10 @@ This will create `<prefix>/preprocessed_data.tsv` -- the file tabulating all sit
 Run the EM algorithm:
 
 ``` bash
-pixi run daiseg run_EM -jsons example/grch37/example_config.json
+pixi run daiseg run_EM -jsons example_config.json
 ```
 
 The output file `<prefix>/out.hg19.chr22.em.tsv` will contain inferred archaic segments for each ingroup sample.
-
-
-
 
 ### Config specification
 
