@@ -1,15 +1,16 @@
 import numpy as np
 from numba import jit, prange, config, set_num_threads
 import json
-import hmm
 import gc
 import sys, os
 import pandas as pd
 
+import daiseg.hmm as hmm
+
 # restruc numba 
-if 'NUMBA_NUM_THREADS' not in os.environ:
-    os.environ['NUMBA_NUM_THREADS'] = '32'
-    print(f"NUMBA_NUM_THREADS={os.environ['NUMBA_NUM_THREADS']}")
+# if 'NUMBA_NUM_THREADS' not in os.environ:
+#     os.environ['NUMBA_NUM_THREADS'] = '32'
+#     print(f"NUMBA_NUM_THREADS={os.environ['NUMBA_NUM_THREADS']}")
 
 # NORMALIZED FORWARD-BACKWARD 
 @jit(nopython=True)

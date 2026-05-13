@@ -1,238 +1,150 @@
-# DAIseg 
-**A Hidden Markov Model (HMM) for detecting archaic introgression in modern genomes.**
+## DAIseg
 
-## 📌 Overview
-DAIseg is a highly accurate method to identify genomic segments in modern humans inherited from archaic admixture. 
+### Overview 
+
+DAIseg infers introgressed archaic segments in modern genomes.
+
+### Citation
+
+Planche, L., Ilina, A.V., & Shchur, V.L. (2024). Highly Accurate Method for Detecting Archaic Segments in the Modern Genomes. *Lobachevskii J Math*, 45, 2910–2917. DOI: [10.1134/S1995080224602959](https://doi.org/10.1134/S1995080224602959).
+
+### Installation
+
+DAISeg is a Python package, so you can install it from Github to your Python environment.
+
+We recommend using [`pixi`](https://pixi.prefix.dev/latest/installation/] to manage your research environment. With `pixi`, DAIseg can be installed with 
+
+``` bash
+pixi add --git https://github.com/Genomics-HSE/DAISeg --pypi daiseg
+```
+
+Beyond Python dependencies, DAIseg needs `bedtools` and `bcftools` (for data preprocessing steps only).
+Example `pixi` environment with all required dependencies is provided in the `examples/` directory, see "Usage" below.
+
+### Usage 
+
+Here is an example of how to run DAIseg on chromosome 22 with hg19 1000Genomes samples.
+
+**0.** Install `DAIseg` in an environment of your choice. Here is how I would do it. 
+
+First, make sure you have [`github cli`](https://github.com/cli/cli#installation) and [`pixi`](https://pixi.prefix.dev/latest/installation/) installed on your Linux machine.
+
+Clone this repository. Then, copy the example folder out of the git repository to use it as your working directory (let's call it `example_run`).
+
+``` bash
+gh repo clone Genomics-HSE/DAISeg
+cp -r DAISeg/examples/grch37 example_run
+cd example_run
+```
+
+Install the `pixi` environment.
+
+``` bash
+pixi install
+```
+
+Test the environment, making sure DAIseg launches.
+
+``` bash
+pixi run daiseg
+```
+
+This command should do nothing by design. Email us if you have any problems.
 
 
-The introgression scenario describes a historical admixture event where an ancestral modern human population interbred with an archaic hominin group, such as Neanderthals, after their initial divergence. This event, which occurred at a specific time in the past (e.g., tens of thousands of years ago), introduced a small proportion of archaic DNA (typically 1-2%) into the gene pool of the non-African population. The resulting genetic signature—archaic genomic segments embedded within modern human lineages—is what DAIseg is designed to detect.
 
-## 🔧 Core Method
-- **Model:** Hidden Markov Model (HMM)
-* **Dual-Reference Strategy:** Leverages both archaic and unadmixed modern reference data to minimize false positives.
-- **Output:** Genomic tracts of archaic ancestry with high precision/recall.
+**1.** Download the data and fill out the config file. Run the `download.sh` script to get all the necessary data. It will create the following directory layout:
 
-## 📖 Reference
-Planche, L., Ilina, A.V., & Shchur, V.L. (2024). Highly Accurate Method for Detecting Archaic Segments in the Modern Genomes. *Lobachevskii J Math*, 45, 2910–2917.  [https://doi.org/10.1134/S1995080224602959](https://doi.org/10.1134/S1995080224602959)
+```
+$ tree data
+data
+├── 1000g
+│   ├── 20140520.strict_mask.autosomes.bed
+│   ├── 20140520.strict_mask.chr22.bed
+│   ├── ALL.chr22.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz
+│   └── ALL.chr22.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz.tbi
+├── ancestral
+│   ├── homo_sapiens_ancestor_22.bed
+│   ├── homo_sapiens_ancestor_22.fa
+│   └── ....
+├── gaps
+│   └── gap.txt
+├── nd
+│   ├── altai
+│   │   ├── chr22_mask.bed.gz
+│   │   ├── chr22_mq25_mapab100.vcf.gz
+│   │   └── chr22_mq25_mapab100.vcf.gz.tbi
+│   └── vindija
+│       ├── chr22_mask.bed.gz
+│       ├── chr22_mq25_mapab100.vcf.gz
+│       └── chr22_mq25_mapab100.vcf.gz.tbi
+├── reference
+│   └── hs37d5.fa.gz
+└── sizes
+    └── hg19.chrom.sizes
+```
 
+The folder will be ~5.2GiB in size. 
 
-# General workflow 
-To run DAIseg in its simplest way you need callability and prepared .tsv file.
+**1.** Enter data file locations and inference parameters into a `json` file. The provided `example_config.json` file already matches the `data` directory created above. The inference parameters in the file list the YRI population samples in the `outgroup` field and IBS population samples in the `ingroup` field. See below for the specification of config fields. 
 
-### 1. Create file with general callability information of modern genomes
-
-Processes a chromosome to create a .BED file with callability coverage statistics calculated in 1000 bp windows. Output BED Format  is 
-Tab-separated values with columns 
-
+**2.** Extract the relevant samples from the 1000Genomes files. Run 
 ```bash
-chr  start_i  end_i  num_variants  pos_in_mask  window_length  coverage
+pixi run daiseg restrict_1kG -json example_config.json -threads 8
 ```
 
-
-**Processing Logic.**
-
-    - Window Creation – Divides chromosome into non-overlapping window_size bp windows.
-    
-    - Variant Counting – For each window, counts variants whose coordinates overlap with window.
-    
-    - Mask Coverage – Calculates number of base positions overlapping the callability mask.
-    
-    - Coverage Calculation – Computes coverage = pos_in_mask / window_length.
+This will create the `<prefix>/preprocessed.vcf.gz` file in your output prefix directory (specified in the config JSON, see below). This is the filtered file that contains only the modern human samples listed as `outgroup` and `ingroup` in the config
 
 
-**Example.**
-```bash
-1    0       999    12    980    1000    0.980
-1    1000    1999    8     995    1000    0.995
-1    2000    2999    15    876    1000    0.876
+**3.** Create callability masks. Run 
+
+``` bash
+pixi run daiseg callability -json example_config.json
 ```
 
-### 1.1 Create file with general information in significant genome positions of archaic genomes
+This will create the callability/coverage for modern samples (`<prefix>/1kg_coverage.bed`) and for Neanderthal samples (`<prefix>/nd_1kg_coverage.bed`).
 
-Processes a chromosome to create a .BED file with neanderthal callability calculated in 1000 bp windows. Output BED Format  is 
-Tab-separated values with columns 
+**4.** Prepare input data for the HMM. Run 
 
-```bash
-chr  start_i  end_i  num_variants  pos_in_mask  window_length  coverage
+``` bash
+pixi run daiseg prep -json example_config.json -threads 8
 ```
 
+This will create `<prefix>/preprocessed_data.tsv` -- the file tabulating all sites that will be used by the HMM.
 
-**Processing Logic.**
-    - Window Creation – Divides chromosome into non-overlapping window_size bp windows.
-    - Variant Counting – For each window, counts variants whose coordinates overlap.
-    - Mask Coverage – Calculates number of base positions of **JOINED** neanderthals overlapping the callability mask.
-    - Coverage Calculation – Computes coverage = pos_in_mask / window_length.
+**5.** Run the algorithm. There are three available options:
 
-### 2. Create file  like
-```bash
-CHROM    POS	REF	ALT	Ancestral	Outgroup	Neand	Sample1_hap1	Sample1_hap2    ...   SampleN_hap1	SampleN_hap2 
-```
-where each row corresponds to a single biallelic position where at least one difference exists in the target samples {Sample1.. SampleN} relative to Africans(Outgroup) or Neanderthals(Neand). REF, ALT and Ancestral are reference, alternative and ancestral alleles respectively. 
+- `daiseg run -json <config>` will do .... This command takes a single JSON file as an argument.
 
-### 3. Create config .json file
+- `daiseg run_EM -jsons <configs>` will do .... This command can be used on a batch of config JSON files, so that multiple chromosomes can be processed at once.
 
-```bash
-{
-  "description": "DAIseg.simple configuration to run ",
-  "CHROM": "chr",  
-  "output": "out.assembly.chr", 
-  "prefix": "/path/to/output/directory/prefix",  
-  "files": {
-    "neand_files": {  # Neanderthal data files
-      "Vindija33.19": {
-        "bed": "/path/to/neand/vindija33.19/.bed",  
-        "vcf": "/path/to/neand/vindija33.19/.vcf.gz" 
-      },
-      "Altai": {
-        "bed": "/path/to/neand/altai/.bed", 
-        "vcf": "/path/to/neand/altai/.vcf.gz" 
-      }
-    },
-    "1000GP_files": {  # 1000 Genomes Project files
-      "bed": "/path/to/1000gp/strict/mask/.bed",  
-      "vcf": "preprocessed.vcf.gz",  
-      "vcf_initial": "/path/to/1000gp/.vcf.gz"  
-    },
-    "ancestral": {
-      "fasta": "/path/to/ancestral/reference/.fa" 
-    },
-    "reference": {
-      "fasta": "/path/to/reference/genome/.fa"  
-    },
-    "chr_lengths": "/path/to/chromosome/lengths/assembly.sizes"  
-  },
-  "samples": {  
-    "outgroup": [  
-      "OUT1", "OUT2", "OUT3", "OUT4", 
-      ...
-      ],
-    "ingroup": [  
-      "IN1", "IN2", "IN3", "IN4",
-      ... 
-    ],
-    "neand": [  
-      "Vindija33.19",
-      "AltaiNeandertal"
-    ]
-  },
-  "parameters_initial": {  
-    "admixture_proportion": 0.02,  
-    "introgression_time": 55000,  
-    "rr": 1e-08,  
-    "mutation": 1.25e-08,  
-    "window_length": 1000, 
-    "generation_time": 29,  
-    "t_archaic_c": 550000,  
-    "t_split_c": 70000,  
-    "t_introgression_c": 55000,  
-    "t_introgression": 55000  
-  },
-  "window_callability": { 
-    "Thousand_genomes": "coverage_file.bed", 
-    "Nd_1k_genomes": "coverage_file.bed"  
-  },
-  "data": "preprocessed_data.tsv",  
-  "gaps": "/path/to/genome/gaps/gap.txt" 
-}
+- `daiseg run_EM_trans -jsons <configs>` will .... This commans also can be used with a batch of config JSONs.
+
+Run the EM algorithm:
+
+``` bash
+pixi run daiseg run_EM -jsons example_config.json
 ```
 
+The output file `<prefix>/out.hg19.chr22.em.tsv` will contain inferred archaic segments for each ingroup sample.
 
-### 4. Running HMM
-Runs the Hidden Markov Model to infer introgression tracts.
-```bash
-python daiseg.py run -json examle.json
-```
+### Config specification
 
-### 5. Using EM for estimation
-Runs the Hidden Markov Model to infer introgression tracts without transition estimates:
-```bash
-python daiseg.py run.with.EM -json example.json
-```
+- `CHROM`: chromosome name
+- `prefix`: output location, relative to the working directory; all intermediate and output files will be in this directory
+- `output`: name prefix for output files containing inferred segments; will be put under the output prefix directory
+- `data`: name for the HMM algorithm input data file; will be created automatically by preparation steps and put in the output prefix directory
+- `window_callability`: filepaths for window vallability `bed` files; these files will be created by the preprocessing steps, so there is no need to change these
+- `files`: filepaths for input data files; see the `example/` directory for expected file formats and download links for typically used files
+  * `neand_files`: `.vcf` variant file and `.bed` accessibility mask file for each neanderthal genome; see example config in `examples/` for the format
+  * `1000GP_files`: `bed` is the location of the 1000Genomes strict accessibility mask; `vcf_initial` is the location of the 1000Genomes variant file for the focal chromosome; `vcf` is the filename for the preprocessed `vcf`, it will be created automatically and put under the output prefix so there is usually no need to change this field
+  * `ancestral.fasta`: fasta file for _Homo sapiens_ ancestor 
+  * `reference.fasta`: reference _Homo sapiens_ fasta file
+  * `chr_lengths`: chromosome lengths
+- `gaps`: filepath for gap annotations for the genome assembly in use; typically downloaded from the UCSC database, see `download.sh` script in `examples/`
+- `samples`: modern hyman sample names to use in the analysis
+  * `outgroup`: list of sample names found in the 1000Genomes vcf to use as outgroup (population with no archaic admixture)
+  * `ingroup`: list of sample names to use as ingroup (population with archaic admixture)
+  * `neand`: list of sample names in the Neanderthal `vcf` files
+- `parameters_initial`: demographic parameters of the model, with times listed in years
 
-Runs the Hidden Markov Model to infer introgression tracts with transitions estimates:
-```bash
-python daiseg.py run.EM.v2 -json example.json
-```
-
-
-
-# 1000GP Workflow 
-
-Below is the complete execution pipeline for chromosome 22.
-
-### 1. Data Restriction
-Filters the 1000 Genomes VCFs based on the configuration.
-```bash
-python daiseg.py restrict_1kG -json example.json -threads 8
-```
-
-### 2. Callability Mask
-Calculates the genomic windows accessible for analysis (filters masks).
-```bash
-python daiseg.py callability -json example.json -threads 8
-```
-
-### 3. Main Preprocessing
-Merges VCFs, filters SNPs, and creates the observation matrix (TSV).
-```bash
-python daiseg.py main.prep -json example.json -threads 8
-```
-
-### 4. Running HMM
-Runs the Hidden Markov Model to infer introgression tracts.
-```bash
-python daiseg.py run -json examle.json
-```
-
-### 5. Using EM for estimation
-Runs the Hidden Markov Model to infer introgression tracts.
-```bash
-python daiseg.py run.with.EM -json example.json
-```
-
----
-
-
-
-
-# DAISeg Module Architecture
-
-## Call Graph
-A visual overview of how the main entry point interacts with internal modules and external tools.
-
-```text
-daiseg.py (Main Entry Point)
- ├── run ⮕ hmm.py (Viterbi & Emissions)
- │    └── Dependencies: obs.py, numpy, numba, scipy
- ├── run.with.EM ⮕ em_alg.py (Parameter Training)
- │    └── Dependencies: hmm.py, numpy, numba
- ├── main.prep ⮕ main.prep.py (Data Wrangling)
- │    └── Dependencies: preprocessing.py, pysam, bcftools
- ├── restrict_1kG ⮕ extract.samples.sh (VCF Filtering)
- │    └── Dependencies: bcftools, jq
- └── callability ⮕ callability.sh (BED Processing)
-      └── Dependencies: bedtools, jq
-```
-
-## Component Logic
-
-Functional roles of the core modules and scripts:
-
-- **daiseg.py**: Primary CLI interface for toggling between processing modes.
-
-- **hmm.py**: Core computational engine. Implements Viterbi algorithm and emission calculations (Numba-optimized).
-
-- **em_alg.py**: Training module. Uses the EM algorithm for automated parameter estimation.
-
-- **main.prep.py**: Data preparation. Converts genomic formats into TSV files compatible with the HMM.
-
-- **Shell Helpers**: Low-level processing of heavy genomic files (VCF/BED) using specialized bioinformatics tools.
-
-
-## Environment & Dependencies
-
-| Category | Tools / Libraries | Purpose |
-|----------|-------------------|---------|
-| Python Core | numpy, numba, scipy, pandas | Numerical computing and JIT acceleration |
-| Genomics | pysam, bcftools, bedtools | Sequence alignment and VCF/BED manipulation |
-| Utilities | jq, sort | JSON parsing and data ordering |
