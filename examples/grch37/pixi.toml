@@ -1,0 +1,16 @@
+[workspace]
+authors = ["Egor Lappo <lappo@stanford.edu>"]
+channels = ["conda-forge", "bioconda"]
+name = "pixitest"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = ">=3.11,<3.12"
+bcftools = ">=1.23.1,<2"
+bedtools = ">=2.31.1,<3"
+
+[pypi-dependencies]
+daiseg = { git = "https://github.com/EgorLappo/DAISeg" }

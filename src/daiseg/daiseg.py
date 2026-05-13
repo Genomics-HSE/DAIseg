@@ -8,12 +8,14 @@ from pathlib import Path
 import daiseg.hmm as hmm
 import daiseg.em_alg as em_alg
 import daiseg.prep as prep
+import daiseg.restrict as restrict
+import daiseg.callability as callability
 
 
 
 def main():
     script_description = """
-    Script for identifying introgressed archaic segments
+    DAIseg: inference of introgressed archaic segments.
     """
 
     parser = argparse.ArgumentParser(
@@ -57,7 +59,7 @@ def main():
     args = parser.parse_args()
 
     # get scripts dir as a subling to python source
-    scripts_dir = Path(__file__).parent / "scripts"
+    scripts_dir = Path(__file__).parent.parent / "scripts"
 
     if args.mode == 'run':
         hmm.run_daiseg(args.json)
@@ -77,17 +79,21 @@ def main():
 
 
     elif args.mode == 'restrict_1kG':
-        result = subprocess.run(
-            [str(scripts_dir / 'extract_samples.sh'), args.json, str(args.threads)],
-            text=True,
-            check=True
-        )
+        restrict.run(args.json, args.threads)
+
+        # result = subprocess.run(
+        #     [str(scripts_dir / 'extract_samples.sh'), args.json, str(args.threads)],
+        #     text=True,
+        #     check=True
+        # )
 
     elif args.mode == 'callability':
-        result = subprocess.run(
-            [str(scripts_dir / 'callability.sh'), args.json],
-            text=True, check=True
-        )
+        callability.run(args.json)
+
+        # result = subprocess.run(
+        #     [str(scripts_dir / 'callability.sh'), args.json],
+        #     text=True, check=True
+        # )
 
     elif args.mode == 'prep':
         prep.run(args.json)

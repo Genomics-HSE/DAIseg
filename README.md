@@ -1,20 +1,25 @@
 ## DAIseg
 
+### Overview 
+
+DAIseg infers introgressed archaic segments in modern genomes.
+
 ### Citation
 
-Planche, L., Ilina, A.V., & Shchur, V.L. (2024). Highly Accurate Method for Detecting Archaic Segments in the Modern Genomes. *Lobachevskii J Math*, 45, 2910–2917. DOI: [https://doi.org/10.1134/S1995080224602959](10.1134/S1995080224602959)
+Planche, L., Ilina, A.V., & Shchur, V.L. (2024). Highly Accurate Method for Detecting Archaic Segments in the Modern Genomes. *Lobachevskii J Math*, 45, 2910–2917. DOI: [10.1134/S1995080224602959](https://doi.org/10.1134/S1995080224602959).
 
 ### Installation
 
 DAISeg is a Python package, so you can install it from Github to your Python environment.
 
-We recommend using [https://pixi.prefix.dev/latest/installation/](`pixi`) to manage your research environment. With `pixi`, DAIseg can be installed with 
+We recommend using [`pixi`](https://pixi.prefix.dev/latest/installation/] to manage your research environment. With `pixi`, DAIseg can be installed with 
 
 ``` bash
-pixi add --git https://github.com/Genomics-HSE/DAISeg 
+pixi add --git https://github.com/Genomics-HSE/DAISeg --pypi daiseg
 ```
 
-Example pixi environment is provided in the `examples/` directory, see "Usage" below.
+Beyond Python dependencies, DAIseg needs `bedtools` and `bcftools` (for data preprocessing steps only).
+Example `pixi` environment with all required dependencies is provided in the `examples/` directory, see "Usage" below.
 
 ### Usage 
 
@@ -22,7 +27,7 @@ Here is an example of how to run DAIseg on chromosome 22 with hg19 1000Genomes s
 
 **0.** Install `DAIseg` in an environment of your choice. Here is how I would do it. 
 
-First, make sure you have [https://github.com/cli/cli#installation](`github cli`) and [https://pixi.prefix.dev/latest/installation/](`pixi`) installed on your Linux machine.
+First, make sure you have [`github cli`](https://github.com/cli/cli#installation) and [`pixi`](https://pixi.prefix.dev/latest/installation/) installed on your Linux machine.
 
 Clone this repository. Then, copy the example folder out of the git repository to use it as your working directory (let's call it `example_run`).
 
@@ -59,10 +64,9 @@ data
 │   ├── ALL.chr22.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz
 │   └── ALL.chr22.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz.tbi
 ├── ancestral
-│   └── homo_sapiens_ancestor_GRCh37_e71
-│       ├── homo_sapiens_ancestor_22.bed
-│       ├── homo_sapiens_ancestor_22.fa
-│       └── ....
+│   ├── homo_sapiens_ancestor_22.bed
+│   ├── homo_sapiens_ancestor_22.fa
+│   └── ....
 ├── gaps
 │   └── gap.txt
 ├── nd
