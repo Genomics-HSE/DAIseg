@@ -1,17 +1,11 @@
 #!/usr/bin/env bash
-
-# ============================================================================
-# callability.sh - Calculate genomic callability masks for 1000G and Neanderthal
-# ============================================================================
-
-set -e # Stop immediately if any command fails
+set -euo pipefail
 
 JSON=$1
-CORES=$2
 
 # Validate input arguments
-if [[ -z "$JSON" || -z "$CORES" ]]; then
-    echo " Usage: $0 <config.json> <cores>"
+if [[ -z "$JSON" ]]; then
+    echo " Usage: $0 <config.json>"
     exit 1
 fi
 
@@ -34,7 +28,6 @@ OUT_COV_ND="$PREFIX/$FILE_COV_ND_NAME"
 TEMP_MASK="$PREFIX/temp_intersect_mask.bed" # Temporary file for mask intersection
 
 # Performance settings for sort
-SORT_ARGS="-S 4G --parallel=$CORES"
 export LC_ALL=C
 
 # --- Chromosome Name Normalization ---
@@ -73,12 +66,10 @@ done
 echo "  Generating merged mask..."
 
 jq -r '.files.neand_files[].bed' "$JSON" | sed "s|^~|$HOME|" |
-    xargs -I {} zcat -f {} |
-    grep -v "^#" |
-    sort $SORT_ARGS -k1,1 -k2,2n |
+    xargs -I {} zcat -f {} | bedtools sort -i - |
     bedtools merge -i - |
     bedtools intersect -sorted \
-        -a <(zcat -f "$STRICT_MASK_PATH" | grep -v "^#" | sort $SORT_ARGS -k1,1 -k2,2n) \
+        -a <(bedtools sort -i "$STRICT_MASK_PATH") \
         -b - >"$TEMP_MASK"
 
 # --- STEP 2: Filter Chromosome Size ---
@@ -103,8 +94,3 @@ bedtools makewindows -g temp_current.size -w 1000 |
 
 # --- Cleanup ---
 rm -f temp_current.size "$TEMP_MASK"
-
-echo ""
-echo " Done. Callability files created:"
-echo "   - $OUT_COV_ND"
-echo "   - $OUT_COV_1KG"

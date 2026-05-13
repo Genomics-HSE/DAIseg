@@ -29,28 +29,28 @@ def main():
 
     # 2. Run with EM 
     decode_subparser = subparser.add_parser('run_EM', help='Run Global EM training and Inference')
-    decode_subparser.add_argument("-threads", help="Number of threads (optional)", type=int)
+    decode_subparser.add_argument("-threads", help="Number of threads (optional)", type=int, required=False, default=4)
     decode_subparser.add_argument("-jsons", help="List of JSON files (e.g. sims/*.json)", nargs='+', required=True)
     decode_subparser.add_argument("-out", help="Path to save merged results (e.g. all.results.tsv)", type=str, required=False)
 
     # 2.1 Run with EM + Matrix Update 
     decode_parser = subparser.add_parser('run_EM_trans', help='Run EM optimizing Transitions ')
-    decode_parser.add_argument("-threads", help="Threads", type=int, default=4)
+    decode_parser.add_argument("-threads", help="Threads", type=int, required=False, default=4)
     decode_parser.add_argument("-jsons", help="List of JSON files", nargs='+', required=True)
     decode_parser.add_argument("-out", help="Path to save results", type=str)
     decode_parser.add_argument("-iter", help="Max iterations", type=int, default=10)
 
     # 3. Helpers
     decode_subparser = subparser.add_parser('restrict_1kG', help='Helper')
-    decode_subparser.add_argument("-threads", type=int, required=True)
+    decode_subparser.add_argument("-threads", type=int, required=False, default=1)
     decode_subparser.add_argument("-json", type=str, required=True)
 
     decode_subparser = subparser.add_parser('callability', help='Helper')
-    decode_subparser.add_argument("-threads", type=int, required=True)
+    decode_subparser.add_argument("-threads", type=int, required=False, default=1)
     decode_subparser.add_argument("-json", type=str, required=True)
 
     decode_subparser = subparser.add_parser('prep', help='Helper')
-    decode_subparser.add_argument("-threads", type=int, required=True)
+    decode_subparser.add_argument("-threads", type=int, required=False, default=1)
     decode_subparser.add_argument("-json", type=str, required=True)
 
     args = parser.parse_args()
@@ -80,11 +80,11 @@ def main():
 
     elif args.mode == 'callability':
         result = subprocess.run(
-            ['scripts/callability.sh', args.json, str(args.threads)],
+            ['scripts/callability.sh', args.json],
             text=True, check=True
         )
 
-    elif args.mode == 'main.prep':
+    elif args.mode == 'prep':
         prep.run(args.json)
 
 if __name__ == "__main__":

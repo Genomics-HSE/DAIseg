@@ -26,15 +26,17 @@
             name = "daiseg";
             buildInputs = [
               wget
+              ruff
+
+              jq
+              bedtools
+              bcftools
+
+              # htslib stuff for pysam
               zlib
               bzip2
               xz
               htslib
-              ouch
-              ruff
-              jq
-              bedtools
-              bcftools
             ];
 
             shellHook = ''

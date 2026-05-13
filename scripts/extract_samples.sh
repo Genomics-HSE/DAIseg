@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
-
-# extract.samples.sh - Extract specific samples from 1000 Genomes VCF file
-
-set -e # Exit immediately on any error
+set -euo pipefail
 
 JSON=$1
 nthr=$2
@@ -15,7 +12,6 @@ fi
 
 # Extract parameters from JSON
 PREF="$(jq -r '.prefix' "${JSON}")"
-start_time=$(date +%s)
 
 # Get path to original 1000GP VCF
 FILE_1kG_RAW="$(jq -r '.files["1000GP_files"].vcf_initial' "${JSON}")"
@@ -65,11 +61,11 @@ fi
 echo "  Running bcftools..."
 #bcftools view --threads "$nthr" -S "$SAMPLE_LIST"  "$FILE_1kG" -Oz -o "$FILTERED_1kG"
 
-bcftools view --threads $nthr -S "$SAMPLE_LIST" --force-samples --trim-alt-alleles -Ou "$FILE_1kG" |
-    bcftools norm --threads $nthr -m -any -Ou |
-    bcftools view --threads $nthr -v snps -Ou |
-    bcftools norm --threads $nthr -m +any -Ou |
-    bcftools view --threads $nthr -m2 -M4 -Oz -o "$FILTERED_1kG"
+bcftools view --threads "$nthr" -S "$SAMPLE_LIST" --force-samples --trim-alt-alleles -Ou "$FILE_1kG" |
+    bcftools norm --threads "$nthr" -m -any -Ou |
+    bcftools view --threads "$nthr" -v snps -Ou |
+    bcftools norm --threads "$nthr" -m +any -Ou |
+    bcftools view --threads "$nthr" -m2 -M4 -Oz -o "$FILTERED_1kG"
 # --- CHECK 2: Verify output was created successfully ---
 if [[ ! -s "$FILTERED_1kG" ]]; then
     echo " CRITICAL ERROR: Output VCF is empty or failed to write."
@@ -81,9 +77,3 @@ bcftools index -f --tbi --threads "$nthr" "$FILTERED_1kG"
 
 # Cleanup temporary files
 rm "$SAMPLE_LIST"
-
-end_time=$(date +%s)
-duration=$((end_time - start_time))
-echo ""
-echo " Success! Filtered VCF saved to: $FILTERED_1kG"
-echo "  Total time: ${duration} seconds"

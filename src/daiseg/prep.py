@@ -9,7 +9,7 @@ import daiseg.utils as utils
 def run_step(cmd, desc):
     """Run shell command, exit on error."""
     try:
-        subprocess.check_call(cmd, shell=True, executable='/bin/bash')
+        subprocess.check_call(cmd, shell=True)
     except subprocess.CalledProcessError:
         sys.exit(f"[ERROR] Failed at step: {desc}")
 
@@ -108,7 +108,7 @@ def run(json_path):
 
         print(f"Starting job for {name}...", file=sys.stderr)
 
-        proc = subprocess.Popen(cmd_str, shell=True, executable='/bin/bash')
+        proc = subprocess.Popen(cmd_str, shell=True)
         running_procs.append(proc)
 
         temp_files.append(tmp_nd)
@@ -210,7 +210,7 @@ def run(json_path):
 
     # Run Pipeline and Write to File ---
     process = subprocess.Popen(pipeline_cmd, shell=True, stdout=subprocess.PIPE,
-                               text=True, executable='/bin/bash')
+                               text=True)
 
     try:
         with open(output_file, 'w') as out_f:

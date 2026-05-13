@@ -1,8 +1,8 @@
 {
-  "description": "DAIseg.simple configuration to run ",
-  "CHROM": "chr22",
-  "output": "out.hg19.chr22",
+  "CHROM": "22",
   "prefix": "output/example",
+  "output": "out.hg19.chr22",
+  "data": "preprocessed_data.tsv",
   "files": {
     "neand_files": {
       "Vindija33.19": {
@@ -20,13 +20,14 @@
       "vcf_initial": "data/1000g/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz"
     },
     "ancestral": {
-      "fasta": "data/ancestral/homo_sapiens_ancestor_GRCh37_e71/homo_sapiens_ancestor_22.fa"
+      "fasta": "data/ancestral/homo_sapiens_ancestor_22.fa"
     },
     "reference": {
       "fasta": "data/reference/hs37d5.fa.gz"
     },
     "chr_lengths": "data/sizes/hg19.chrom.sizes"
   },
+  "gaps": "data/gaps/gap.txt",
   "samples": {
     "outgroup": [
       "NA18486",
@@ -267,7 +268,5 @@
   "window_callability": {
     "Thousand_genomes": "1kg_coverage.bed",
     "Nd_1k_genomes": "nd_1kg_coverage.bed"
-  },
-  "data": "preprocessed_data.tsv",
-  "gaps": "data/gaps/gap.txt"
+  }
 }
