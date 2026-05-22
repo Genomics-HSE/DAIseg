@@ -33,8 +33,8 @@ First, make sure you have [`github cli`](https://github.com/cli/cli#installation
 Clone this repository. Then, copy the example folder out of the git repository to use it as your working directory (let's call it `example_run`).
 
 ``` bash
-gh repo clone Genomics-HSE/DAIseg
-cp -r DAISeg/examples/grch37 example_run
+git clone https://github.com/Genomics-HSE/DAIseg.git #gh repo clone Genomics-HSE/DAIseg
+cp -r DAIseg/examples/grch37 example_run
 cd example_run
 ```
 
