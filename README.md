@@ -15,6 +15,7 @@ DAISeg is a Python package, so you can install it from Github to your Python env
 We recommend using [`pixi`](https://pixi.prefix.dev/latest/installation/] to manage your research environment. With `pixi`, DAIseg can be installed with 
 
 ``` bash
+pixi init
 pixi add --git https://github.com/Genomics-HSE/DAIseg --pypi daiseg
 ```
 
