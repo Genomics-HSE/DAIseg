@@ -15,7 +15,7 @@ DAISeg is a Python package, so you can install it from Github to your Python env
 We recommend using [`pixi`](https://pixi.prefix.dev/latest/installation/] to manage your research environment. With `pixi`, DAIseg can be installed with 
 
 ``` bash
-pixi add --git https://github.com/Genomics-HSE/DAISeg --pypi daiseg
+pixi add --git https://github.com/Genomics-HSE/DAIseg --pypi daiseg
 ```
 
 Beyond Python dependencies, DAIseg needs `bedtools` and `bcftools` (for data preprocessing steps only).
@@ -32,7 +32,7 @@ First, make sure you have [`github cli`](https://github.com/cli/cli#installation
 Clone this repository. Then, copy the example folder out of the git repository to use it as your working directory (let's call it `example_run`).
 
 ``` bash
-gh repo clone Genomics-HSE/DAISeg
+gh repo clone Genomics-HSE/DAIseg
 cp -r DAISeg/examples/grch37 example_run
 cd example_run
 ```
