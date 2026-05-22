@@ -16,7 +16,10 @@ We recommend using [`pixi`](https://pixi.prefix.dev/latest/installation/] to man
 
 ``` bash
 pixi init
+
 pixi add --git https://github.com/Genomics-HSE/DAIseg --pypi daiseg
+#pixi add python pip
+#pixi run python -m pip install "git+https://github.com/Genomics-HSE/DAIseg.git"
 ```
 
 Beyond Python dependencies, DAIseg needs `bedtools` and `bcftools` (for data preprocessing steps only).
