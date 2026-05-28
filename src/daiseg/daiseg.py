@@ -31,9 +31,7 @@ def main():
     )
 
     # 2. Run with EM
-    cmd_run_EM = mode.add_parser(
-        "run_EM", help="Run Global EM training and Inference"
-    )
+    cmd_run_EM = mode.add_parser("run_EM", help="Run Global EM training and Inference")
     cmd_run_EM.add_argument(
         "-threads",
         help="Number of threads (optional)",

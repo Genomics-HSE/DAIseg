@@ -224,7 +224,7 @@ def run(json_path):
 
         chrom_len = len(chrom_seq)
         print(
-            f"🔍 [DEBUG] Chromosome '{chrom_name_used}' length: {chrom_len} bp",
+            f"[DEBUG] Chromosome '{chrom_name_used}' length: {chrom_len} bp",
             file=sys.stderr,
         )
         af.close()
