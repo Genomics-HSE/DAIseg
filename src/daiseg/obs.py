@@ -7,10 +7,10 @@ def parse_set_fast(val_str):
     Parses TSV string like '{A,G}' or '{T}' into a Python set.
     Returns empty set for '.' or empty strings.
     """
-    if not val_str or val_str == '{}' or val_str == '.':
+    if not val_str or val_str == "{}" or val_str == ".":
         return set()
     # Remove braces and split by comma
-    return set(val_str.strip('{}').split(','))
+    return set(val_str.strip("{}").split(","))
 
 
 def process_data(tsv_path, bed_path):
@@ -18,34 +18,30 @@ def process_data(tsv_path, bed_path):
     Reads BED (windows) and TSV (genotypes).
     """
     print(" [obs.py] Loading BED windows...")
-    
+
     windows_by_chrom = {}
     all_windows_flat = []
 
     # 1. Load BED file
     try:
-        with open(bed_path, 'r') as f:
+        with open(bed_path, "r") as f:
             for line in f:
                 parts = line.strip().split()
                 if len(parts) < 3:
                     continue
                 # Skip headers or comments
-                if parts[0].startswith('#') or parts[0].lower() == 'chrom':
+                if parts[0].startswith("#") or parts[0].lower() == "chrom":
                     continue
 
                 # Normalize chromosome name
                 chrom = parts[0]
-                if not chrom.startswith('chr'):
-                    chrom = 'chr' + chrom
+                if not chrom.startswith("chr"):
+                    chrom = "chr" + chrom
 
                 start = int(parts[1])
                 end = int(parts[2])
 
-                window = {
-                    's': start,
-                    'e': end,
-                    'stats': None
-                }
+                window = {"s": start, "e": end, "stats": None}
                 all_windows_flat.append(window)
 
                 if chrom not in windows_by_chrom:
@@ -58,9 +54,9 @@ def process_data(tsv_path, bed_path):
 
     # 2. Process TSV file
     try:
-        with open(tsv_path, 'r') as f:
-            reader = csv.reader(f, delimiter='\t')
-            
+        with open(tsv_path, "r") as f:
+            reader = csv.reader(f, delimiter="\t")
+
             # Read Header
             header = next(reader, None)
             if not header:
@@ -71,33 +67,43 @@ def process_data(tsv_path, bed_path):
 
             try:
                 # Identify chromosome column
-                if '#CHROM' in header_map:
-                    idx_c = header_map['#CHROM']
-                elif 'chr' in header_map:
-                    idx_c = header_map['chr']
+                if "#CHROM" in header_map:
+                    idx_c = header_map["#CHROM"]
+                elif "chr" in header_map:
+                    idx_c = header_map["chr"]
                 else:
-                    idx_c = header_map['CHROM']
+                    idx_c = header_map["CHROM"]
 
-                idx_p = header_map['POS']
-                idx_anc = header_map['Ancestral']
-                idx_out = header_map['Outgroup']
-                idx_nean = header_map['Neand']
+                idx_p = header_map["POS"]
+                idx_anc = header_map["Ancestral"]
+                idx_out = header_map["Outgroup"]
+                idx_nean = header_map["Neand"]
             except KeyError as e:
                 raise ValueError(f"Missing mandatory column in TSV: {e}")
 
             # Identify Haplotype Columns
-            exclude_names = {'#CHROM', 'chr', 'CHROM', 'POS', 'REF', 'ALT', 'Ancestral', 'Outgroup', 'Neand'}
-            
+            exclude_names = {
+                "#CHROM",
+                "chr",
+                "CHROM",
+                "POS",
+                "REF",
+                "ALT",
+                "Ancestral",
+                "Outgroup",
+                "Neand",
+            }
+
             hap_indices = []
             for i, h in enumerate(header):
                 if h not in exclude_names:
                     hap_indices.append((h, i))
-            
+
             hap_names = [x[0] for x in hap_indices]
 
             # Initialize stats
             for w in all_windows_flat:
-                w['stats'] = {name: [0, 0] for name in hap_names}
+                w["stats"] = {name: [0, 0] for name in hap_names}
 
             # Linear Scan Variables
             current_chrom = None
@@ -107,15 +113,15 @@ def process_data(tsv_path, bed_path):
 
             for row_num, row in enumerate(reader):
                 if row_num % 100000 == 0 and row_num > 0:
-                    print(f"[obs.py] Processed lines: {row_num}...", end='\r')
+                    print(f"[obs.py] Processed lines: {row_num}...", end="\r")
 
                 try:
                     # Sync coordinates: BED is 0-based, TSV is 1-based
                     raw_chrom = row[idx_c]
-                    
+
                     # Normalize to 'chr21' format
-                    if not raw_chrom.startswith('chr'):
-                        chrom = 'chr' + raw_chrom
+                    if not raw_chrom.startswith("chr"):
+                        chrom = "chr" + raw_chrom
                     else:
                         chrom = raw_chrom
 
@@ -135,38 +141,37 @@ def process_data(tsv_path, bed_path):
 
                 # Advance window index
                 curr_win = current_windows_list[win_idx]
-                while pos >= curr_win['e']:
+                while pos >= curr_win["e"]:
                     win_idx += 1
                     if win_idx >= max_win_idx:
                         break
                     curr_win = current_windows_list[win_idx]
-                
+
                 if win_idx >= max_win_idx:
                     continue
 
                 # Skip if SNP is before start of current window
-                if pos < curr_win['s']:
+                if pos < curr_win["s"]:
                     continue
                 # CALCULATE STATS
                 anc = row[idx_anc]
-                
+
                 if not anc.isupper():
                     continue
                 anc = row[idx_anc].strip().upper()
-                if anc not in ('A','C','G','T'):
+                if anc not in ("A", "C", "G", "T"):
                     continue
                 out_raw = row[idx_out]
                 nean_raw = row[idx_nean]
 
                 out_set = parse_set_fast(out_raw)
                 nean_set = parse_set_fast(nean_raw)
-                has_out = out_raw not in ('.', '', '{}')
-                has_nean = nean_raw not in ('.', '', '{}')
+                has_out = out_raw not in (".", "", "{}")
+                has_nean = nean_raw not in (".", "", "{}")
 
                 for hap_name, hap_idx in hap_indices:
-
                     val = row[hap_idx].strip().upper()
-                    if val == '.' or len(val) != 1:
+                    if val == "." or len(val) != 1:
                         continue
                     if val == anc:
                         continue
@@ -175,22 +180,21 @@ def process_data(tsv_path, bed_path):
                     is_diff_nean = has_nean and (val not in nean_set)
 
                     if is_diff_out or is_diff_nean:
-                        stats = curr_win['stats'][hap_name]
+                        stats = curr_win["stats"][hap_name]
                         if is_diff_out:
                             stats[0] += 1
                         if is_diff_nean:
                             stats[1] += 1
 
-
     except FileNotFoundError:
         raise FileNotFoundError(f"[obs.py] Data file not found: {tsv_path}")
-    
+
     print("\n [obs.py] Processing done. Aggregating results...")
-    
+
     final_result = {name: [] for name in hap_names}
     for w in all_windows_flat:
         for name in hap_names:
-            final_result[name].append(w['stats'][name])
+            final_result[name].append(w["stats"][name])
 
     return final_result
 
@@ -206,19 +210,13 @@ def get_number_states(result_dict):
         for i, stats in enumerate(windows):
             if stats[0] > max_val:
                 max_val = stats[0]
-                max_info = {
-                    'hap': hap,
-                    'win_idx': i,
-                    'type': 'Outgroup',
-                    'pair': stats
-                }
+                max_info = {"hap": hap, "win_idx": i, "type": "Outgroup", "pair": stats}
             if stats[1] > max_val:
                 max_val = stats[1]
                 max_info = {
-                    'hap': hap,
-                    'win_idx': i,
-                    'type': 'Neanderthals',
-                    'pair': stats
+                    "hap": hap,
+                    "win_idx": i,
+                    "type": "Neanderthals",
+                    "pair": stats,
                 }
     return max_val, max_info
-
