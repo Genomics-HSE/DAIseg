@@ -11,32 +11,23 @@ Planche, L., Ilina, A.V., & Shchur, V.L. (2024). Highly Accurate Method for Dete
 ### Installation
 
 DAISeg is a Python package, so you can install it from Github to your Python environment.
+For data preprocessing steps only, DAIseg depends on `bedtools` and `bcftools` 
 
-We recommend using [`pixi`](https://pixi.prefix.dev/latest/installation/] to manage your research environment. With `pixi`, DAIseg can be installed with 
 
-``` bash
-pixi init
-
-pixi add --git https://github.com/Genomics-HSE/DAIseg --pypi daiseg
-#pixi add python pip
-#pixi run python -m pip install "git+https://github.com/Genomics-HSE/DAIseg.git"
-```
-
-Beyond Python dependencies, DAIseg needs `bedtools` and `bcftools` (for data preprocessing steps only).
-Example `pixi` environment with all required dependencies is provided in the `examples/` directory, see "Usage" below.
+We recommend using [`pixi`](https://pixi.prefix.dev/latest/installation/) to manage your research environment. For an example on how to do that --- including a readymade `pixi` environment with all required dependencies --- see `examples` directory and the "Usage" section below.
 
 ### Usage 
 
-Here is an example of how to run DAIseg on chromosome 22 with hg19 1000Genomes samples.
+Here is an example of how to run DAIseg on chromosome 22 with hg19 1000Genomes samples. This example is designed to work on a Linux machine with an x86_64 architecture CPU. 
 
 **0.** Install `DAIseg` in an environment of your choice. Here is how I would do it. 
 
-First, make sure you have [`github cli`](https://github.com/cli/cli#installation) and [`pixi`](https://pixi.prefix.dev/latest/installation/) installed on your Linux machine.
+First, make sure you have `git` and [`pixi`](https://pixi.prefix.dev/latest/installation/) installed on your Linux machine.
 
 Clone this repository. Then, copy the example folder out of the git repository to use it as your working directory (let's call it `example_run`).
 
 ``` bash
-git clone https://github.com/Genomics-HSE/DAIseg.git #gh repo clone Genomics-HSE/DAIseg
+git clone https://github.com/Genomics-HSE/DAIseg.git
 cp -r DAIseg/examples/grch37 example_run
 cd example_run
 ```
@@ -54,8 +45,6 @@ pixi run daiseg
 ```
 
 This command should do nothing by design. Email us if you have any problems.
-
-
 
 **1.** Download the data and fill out the config file. Run the `download.sh` script to get all the necessary data. It will create the following directory layout:
 
@@ -92,31 +81,18 @@ The folder will be ~5.2GiB in size.
 
 **1.** Enter data file locations and inference parameters into a `json` file. The provided `example_config.json` file already matches the `data` directory created above. The inference parameters in the file list the YRI population samples in the `outgroup` field and IBS population samples in the `ingroup` field. See below for the specification of config fields. 
 
-**2.** Extract the relevant samples from the 1000Genomes files. Run 
-```bash
-pixi run daiseg restrict_1kG -json example_config.json -threads 8
-```
-
-This will create the `<prefix>/preprocessed.vcf.gz` file in your output prefix directory (specified in the config JSON, see below). This is the filtered file that contains only the modern human samples listed as `outgroup` and `ingroup` in the config
-
-
-**3.** Create callability masks. Run 
-
-``` bash
-pixi run daiseg callability -json example_config.json
-```
-
-This will create the callability/coverage for modern samples (`<prefix>/1kg_coverage.bed`) and for Neanderthal samples (`<prefix>/nd_1kg_coverage.bed`).
-
-**4.** Prepare input data for the HMM. Run 
-
+**2.** Prepare input data for the HMM. Run 
 ``` bash
 pixi run daiseg prep -json example_config.json -threads 8
 ```
 
-This will create `<prefix>/preprocessed_data.tsv` -- the file tabulating all sites that will be used by the HMM.
+First, this command will create the `<prefix>/preprocessed.vcf.gz` file in your output prefix directory (specified in the config JSON, see below). This is the filtered file that contains only the modern human samples listed as `outgroup` and `ingroup` in the config.
 
-**5.** Run the algorithm. There are three available options:
+Then, this will create the callability/coverage `.bed` files for modern samples (`<prefix>/1kg_coverage.bed`) and for Neanderthal samples (`<prefix>/nd_1kg_coverage.bed`).
+
+Finally, this will create `<prefix>/preprocessed_data.tsv` -- the main input file for the HMM algorithm.
+
+**3.** Run the algorithm. There are three available options:
 
 - `daiseg run -json <config>` will do .... This command takes a single JSON file as an argument.
 

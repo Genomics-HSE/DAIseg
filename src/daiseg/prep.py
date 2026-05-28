@@ -24,8 +24,10 @@ def run(json_path):
     files = cfg["files"]
     prefix = cfg["prefix"]
 
-    # Get output filename from JSON 
-    output_filename = cfg.get("data", f"prep.chr{chrom_raw.lstrip('chr').lstrip('CHR')}.tsv")
+    # Get output filename from JSON
+    output_filename = cfg.get(
+        "data", f"prep.chr{chrom_raw.lstrip('chr').lstrip('CHR')}.tsv"
+    )
     output_file = os.path.join(prefix, output_filename)
 
     print(f" [INFO] Output will be written to: {output_file}", file=sys.stderr)
@@ -33,7 +35,7 @@ def run(json_path):
     # Normalize chromosome name
     chrom_no_prefix = chrom_raw.lstrip("chr").lstrip("CHR")
 
-    vcf_1kg = prefix + '/' + utils.expand_path(files["1000GP_files"]["vcf"])
+    vcf_1kg = prefix + "/" + utils.expand_path(files["1000GP_files"]["vcf"])
     bed_strict = utils.expand_path(files["1000GP_files"]["bed"])
     anc_path = utils.expand_path(files["ancestral"]["fasta"])
 
@@ -43,13 +45,13 @@ def run(json_path):
 
     # Try to read FASTA headers for debugging
     try:
-        with open(anc_path, 'r') as f:
+        with open(anc_path, "r") as f:
             headers = []
             for _ in range(10):
                 line = f.readline()
                 if not line:
                     break
-                if line.startswith('>'):
+                if line.startswith(">"):
                     headers.append(line.strip())
 
     except Exception as e:
@@ -138,8 +140,13 @@ def run(json_path):
 
         # Get all available chromosome names in FASTA
         available_chroms = af.references
-        print(f"[DEBUG] Available chromosomes in ancestral FASTA: {available_chroms}", file=sys.stderr)
-        print(f"[DEBUG] Looking for chromosome related to: '{chrom_raw}'", file=sys.stderr)
+        print(
+            f"[DEBUG] Available chromosomes in ancestral FASTA: {available_chroms}",
+            file=sys.stderr,
+        )
+        print(
+            f"[DEBUG] Looking for chromosome related to: '{chrom_raw}'", file=sys.stderr
+        )
 
         # chr finding for non-standard FASTA formats
         chrom_seq = None
@@ -149,17 +156,20 @@ def run(json_path):
         if len(available_chroms) == 1:
             chrom_name_used = available_chroms[0]
             chrom_seq = af.fetch(chrom_name_used)
-            print(f"[DEBUG] Using only available chromosome: '{chrom_name_used}'", file=sys.stderr)
+            print(
+                f"[DEBUG] Using only available chromosome: '{chrom_name_used}'",
+                file=sys.stderr,
+            )
 
         # Try to find chromosome by patterns
         else:
             # Create search patterns
             search_terms = [
-                f":{chrom_no_prefix}:",           # Look for :21: in the name
+                f":{chrom_no_prefix}:",  # Look for :21: in the name
                 f"chromosome.*{chrom_no_prefix}",  # chromosome something 21
-                f"chr{chrom_no_prefix}",          # chr21
-                chrom_no_prefix,                  # 21
-                f"CHR{chrom_no_prefix}",          # CHR21
+                f"chr{chrom_no_prefix}",  # chr21
+                chrom_no_prefix,  # 21
+                f"CHR{chrom_no_prefix}",  # CHR21
             ]
 
             for chrom_name in available_chroms:
@@ -167,7 +177,10 @@ def run(json_path):
                     if term in chrom_name:
                         chrom_name_used = chrom_name
                         chrom_seq = af.fetch(chrom_name_used)
-                        print(f"[DEBUG] Found chromosome using pattern '{term}': '{chrom_name_used}'", file=sys.stderr)
+                        print(
+                            f"[DEBUG] Found chromosome using pattern '{term}': '{chrom_name_used}'",
+                            file=sys.stderr,
+                        )
                         break
                 if chrom_seq:
                     break
@@ -176,10 +189,17 @@ def run(json_path):
         if chrom_seq is None:
             for chrom_name in available_chroms:
                 # Try exact match first
-                if chrom_name == chrom_raw or chrom_name == f"chr{chrom_no_prefix}" or chrom_name == chrom_no_prefix:
+                if (
+                    chrom_name == chrom_raw
+                    or chrom_name == f"chr{chrom_no_prefix}"
+                    or chrom_name == chrom_no_prefix
+                ):
                     chrom_name_used = chrom_name
                     chrom_seq = af.fetch(chrom_name_used)
-                    print(f"[DEBUG] Found exact match: '{chrom_name_used}'", file=sys.stderr)
+                    print(
+                        f"[DEBUG] Found exact match: '{chrom_name_used}'",
+                        file=sys.stderr,
+                    )
                     break
 
             # Try partial match
@@ -188,7 +208,10 @@ def run(json_path):
                     if chrom_no_prefix in chrom_name or chrom_raw in chrom_name:
                         chrom_name_used = chrom_name
                         chrom_seq = af.fetch(chrom_name_used)
-                        print(f"[DEBUG] Found partial match: '{chrom_name_used}'", file=sys.stderr)
+                        print(
+                            f"[DEBUG] Found partial match: '{chrom_name_used}'",
+                            file=sys.stderr,
+                        )
                         break
 
         #  Final fallback - if nothing found
@@ -200,7 +223,10 @@ def run(json_path):
             raise ValueError(error_msg)
 
         chrom_len = len(chrom_seq)
-        print(f"🔍 [DEBUG] Chromosome '{chrom_name_used}' length: {chrom_len} bp", file=sys.stderr)
+        print(
+            f"[DEBUG] Chromosome '{chrom_name_used}' length: {chrom_len} bp",
+            file=sys.stderr,
+        )
         af.close()
     except Exception as e:
         for f in temp_files:
@@ -209,17 +235,18 @@ def run(json_path):
         sys.exit(f"[ERROR] Ancestral fasta issue: {e}")
 
     # Run Pipeline and Write to File ---
-    process = subprocess.Popen(pipeline_cmd, shell=True, stdout=subprocess.PIPE,
-                               text=True)
+    process = subprocess.Popen(
+        pipeline_cmd, shell=True, stdout=subprocess.PIPE, text=True
+    )
 
     try:
-        with open(output_file, 'w') as out_f:
+        with open(output_file, "w") as out_f:
             header_line = process.stdout.readline().strip()
             if not header_line.startswith("#"):
                 raise RuntimeError("Pipeline returned no header.")
 
             # Clean header (# [1]CHROM -> CHROM)
-            raw_headers = header_line.lstrip("#").split('\t')
+            raw_headers = header_line.lstrip("#").split("\t")
             headers = []
             for h in raw_headers:
                 if "]" in h:
@@ -229,7 +256,9 @@ def run(json_path):
                 headers.append(h.strip())
 
             # Map columns (Strict JSON order)
-            idx_chrom, idx_pos, idx_ref, idx_alt, cols_yri, cols_ibs, cols_nd = utils.map_columns(headers, cfg["samples"])
+            idx_chrom, idx_pos, idx_ref, idx_alt, cols_yri, cols_ibs, cols_nd = (
+                utils.map_columns(headers, cfg["samples"])
+            )
 
             # Create Output Header ===
             # Split Ingroup into Sample_1 and Sample_2
@@ -242,12 +271,14 @@ def run(json_path):
             ibs_header_str = "\t".join(ibs_split_headers)
 
             # Write header to file
-            out_f.write(f"#CHROM\tPOS\tREF\tALT\tAncestral\tOutgroup\tNeand\t{ibs_header_str}\n")
+            out_f.write(
+                f"#CHROM\tPOS\tREF\tALT\tAncestral\tOutgroup\tNeand\t{ibs_header_str}\n"
+            )
 
             row_count = 0
             # Process Rows ===
             for line in process.stdout:
-                parts = line.strip().split('\t')
+                parts = line.strip().split("\t")
                 if len(parts) != len(headers):
                     continue
 
@@ -258,7 +289,7 @@ def run(json_path):
                     # Filter: Remove Indels
                     if len(ref) > 1:
                         continue
-                    if any(len(a) > 1 for a in alt.split(',')):
+                    if any(len(a) > 1 for a in alt.split(",")):
                         continue
 
                     # Ancestral Allele
@@ -272,8 +303,8 @@ def run(json_path):
                             gt = parts[i]
                             if gt in [".", "./.", ".|."]:
                                 continue
-                            for b in gt.replace('|', '/').split('/'):
-                                if b != '.' and len(b) == 1:
+                            for b in gt.replace("|", "/").split("/"):
+                                if b != "." and len(b) == 1:
                                     s.add(b)
                         return s
 
@@ -288,7 +319,7 @@ def run(json_path):
                         hap1, hap2 = ".", "."
 
                         if gt not in [".", "./.", ".|."]:
-                            alleles = gt.replace('|', '/').split('/')
+                            alleles = gt.replace("|", "/").split("/")
                             if len(alleles) >= 2:
                                 hap1, hap2 = alleles[0], alleles[1]
                             elif len(alleles) == 1:
@@ -334,7 +365,9 @@ def run(json_path):
                     output_chrom = f"{chrom_no_prefix}"
 
                     # Write to file
-                    out_f.write(f"{output_chrom}\t{parts[idx_pos]}\t{parts[idx_ref]}\t{parts[idx_alt]}\t{anc}\t{s1_str}\t{s2_str}\t{s3_cols_str}\n")
+                    out_f.write(
+                        f"{output_chrom}\t{parts[idx_pos]}\t{parts[idx_ref]}\t{parts[idx_alt]}\t{anc}\t{s1_str}\t{s2_str}\t{s3_cols_str}\n"
+                    )
 
                     row_count += 1
                     if row_count % 10000 == 0:
@@ -346,7 +379,10 @@ def run(json_path):
             print(f"[INFO] Total rows written: {row_count}", file=sys.stderr)
 
             if row_count == 0:
-                print("[WARNING] No variants passed filters! Output file is empty.", file=sys.stderr)
+                print(
+                    "[WARNING] No variants passed filters! Output file is empty.",
+                    file=sys.stderr,
+                )
 
     except Exception as e:
         sys.stderr.write(f"[ERROR] Stream processing failed: {e}\n")
@@ -360,9 +396,12 @@ def run(json_path):
     # Check if output file was created
     if os.path.exists(output_file):
         file_size = os.path.getsize(output_file)
-        print(f"[INFO] Output file created: {output_file} ({file_size} bytes)", file=sys.stderr)
+        print(
+            f"[INFO] Output file created: {output_file} ({file_size} bytes)",
+            file=sys.stderr,
+        )
         if file_size > 0:
-            with open(output_file, 'r') as f:
+            with open(output_file, "r") as f:
                 line_count = sum(1 for _ in f)
             print(f"[INFO] Output file contains {line_count} lines", file=sys.stderr)
     else:
