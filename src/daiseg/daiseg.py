@@ -73,11 +73,11 @@ def main():
         hmm.run_daiseg(args.json)
 
     elif args.mode == "run_EM":
-        print(f"Starting Batch EM pipeline for {len(args.jsons)} config files...")
+        print(f"[INFO] Starting Batch EM pipeline for {len(args.jsons)} config files...")
         em_alg.run_batch_em_pipeline(args.jsons, output_combined_file=args.out)
 
     elif args.mode == "run_EM_trans":
-        print(f"Starting optimized EM pipeline for {len(args.jsons)} config files...")
+        print(f"[INFO] Starting optimized EM pipeline for {len(args.jsons)} config files...")
         em_alg.run_batch_em_pipeline_v2(
             args.jsons,
             output_combined_file=args.out,
