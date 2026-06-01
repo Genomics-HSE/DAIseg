@@ -17,13 +17,16 @@ def run(json_file):
 
     # create merged mask
     strict_mask = Path(config["files"]["1000GP_files"]["bed"])
-    tmp_out = prefix / "tmp_intersect_mask.bed"
+    tmp_strict_mask_sorted = prefix / "tmp_strict_mask.bed"
+    strict_mask_cmd = f"bedtools sort -i {strict_mask} >{tmp_strict_mask_sorted}"
+    sbp.run(strict_mask_cmd, shell=True)
 
+    tmp_out = prefix / "tmp_intersect_mask.bed"
     merge_cmd = f"""
     jq -r '.files.neand_files[].bed' {json_file} | sed 's|^~|$HOME|' |
     xargs -I _ zcat -f _ | bedtools sort -i - |
     bedtools merge -i - |
-    bedtools intersect -sorted -a <(bedtools sort -i {strict_mask})  -b - >{tmp_out}
+    bedtools intersect -sorted -a {tmp_strict_mask_sorted}  -b - >{tmp_out}
     """
 
     sbp.run(merge_cmd, shell=True)
@@ -46,3 +49,4 @@ def run(json_file):
     sbp.run(human_cmd, shell=True)
 
     tmp_out.unlink()
+    tmp_strict_mask_sorted.unlink()
