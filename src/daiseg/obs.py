@@ -17,7 +17,7 @@ def process_data(tsv_path, bed_path):
     """
     Reads BED (windows) and TSV (genotypes).
     """
-    print(" [obs.py] Loading BED windows...")
+    print("[INFO] Loading BED windows...")
 
     windows_by_chrom = {}
     all_windows_flat = []
@@ -48,9 +48,9 @@ def process_data(tsv_path, bed_path):
                     windows_by_chrom[chrom] = []
                 windows_by_chrom[chrom].append(window)
     except FileNotFoundError:
-        raise FileNotFoundError(f"[obs.py] BED file not found: {bed_path}")
+        raise FileNotFoundError(f"[ERROR] BED file not found: {bed_path}")
 
-    print(f"[obs.py] Loaded {len(all_windows_flat)} windows. Processing TSV...")
+    print(f"[INFO] Loaded {len(all_windows_flat)} windows. Processing TSV...")
 
     # 2. Process TSV file
     try:
@@ -79,7 +79,7 @@ def process_data(tsv_path, bed_path):
                 idx_out = header_map["Outgroup"]
                 idx_nean = header_map["Neand"]
             except KeyError as e:
-                raise ValueError(f"Missing mandatory column in TSV: {e}")
+                raise ValueError(f"[ERROR] Missing mandatory column in TSV: {e}")
 
             # Identify Haplotype Columns
             exclude_names = {
@@ -113,7 +113,7 @@ def process_data(tsv_path, bed_path):
 
             for row_num, row in enumerate(reader):
                 if row_num % 100000 == 0 and row_num > 0:
-                    print(f"[obs.py] Processed lines: {row_num}...", end="\r")
+                    print(f"[INFO] Processed lines: {row_num}...", end="\r")
 
                 try:
                     # Sync coordinates: BED is 0-based, TSV is 1-based
@@ -187,9 +187,9 @@ def process_data(tsv_path, bed_path):
                             stats[1] += 1
 
     except FileNotFoundError:
-        raise FileNotFoundError(f"[obs.py] Data file not found: {tsv_path}")
+        raise FileNotFoundError(f"[ERROR] Data file not found: {tsv_path}")
 
-    print("\n [obs.py] Processing done. Aggregating results...")
+    print("\n[INFO] Processing done. Aggregating results...")
 
     final_result = {name: [] for name in hap_names}
     for w in all_windows_flat:
