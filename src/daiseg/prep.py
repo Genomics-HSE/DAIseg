@@ -55,11 +55,11 @@ def run(json_path):
                     headers.append(line.strip())
 
     except Exception as e:
-        print(f" [DEBUG] Could not read FASTA headers: {e}", file=sys.stderr)
+        print(f" [ERROR] Could not read FASTA headers: {e}", file=sys.stderr)
 
     temp_files = []
 
-    print("Creating temporary files...", file=sys.stderr)
+    print(f" [INFO] Creating temporary files...", file=sys.stderr)
 
     # Filter 1000 Genomes ---
     tmp_1kg = f"{prefix}/temp_1kg_{chrom_no_prefix}.bcf"
@@ -74,7 +74,7 @@ def run(json_path):
     temp_files.append(f"{tmp_1kg}.csi")
 
     # Filter Neanderthals (Parallel) ---
-    print("Working with Neanderthals (Parallel)...", file=sys.stderr)
+    print(f" [INFO] Working with Neanderthals (Parallel)...", file=sys.stderr)
     neand_files = files.get("neand_files", {})
     nd_inputs = []
     running_procs = []
@@ -100,7 +100,7 @@ def run(json_path):
                     alt_bed = os.path.join(bed_dir, bed_base[3:])
                     if os.path.exists(alt_bed):
                         bed_arg = f"-T {alt_bed}"
-                        print(f"Using alternative BED: {alt_bed}", file=sys.stderr)
+                        print(f" [INFO] Using alternative BED: {alt_bed}", file=sys.stderr)
 
         # Run in background (threads=2 per job)
         cmd_str = (
@@ -108,7 +108,7 @@ def run(json_path):
             f"bcftools index -f {tmp_nd}"
         )
 
-        print(f"Starting job for {name}...", file=sys.stderr)
+        print(f" [INFO] Starting job for {name}...", file=sys.stderr)
 
         proc = subprocess.Popen(cmd_str, shell=True)
         running_procs.append(proc)
@@ -141,11 +141,11 @@ def run(json_path):
         # Get all available chromosome names in FASTA
         available_chroms = af.references
         print(
-            f"[DEBUG] Available chromosomes in ancestral FASTA: {available_chroms}",
+            f"[INFO] Available chromosomes in ancestral FASTA: {available_chroms}",
             file=sys.stderr,
         )
         print(
-            f"[DEBUG] Looking for chromosome related to: '{chrom_raw}'", file=sys.stderr
+            f"[INFO] Looking for chromosome related to: '{chrom_raw}'", file=sys.stderr
         )
 
         # chr finding for non-standard FASTA formats
@@ -157,7 +157,7 @@ def run(json_path):
             chrom_name_used = available_chroms[0]
             chrom_seq = af.fetch(chrom_name_used)
             print(
-                f"[DEBUG] Using only available chromosome: '{chrom_name_used}'",
+                f"[INFO] Using only available chromosome: '{chrom_name_used}'",
                 file=sys.stderr,
             )
 
@@ -178,7 +178,7 @@ def run(json_path):
                         chrom_name_used = chrom_name
                         chrom_seq = af.fetch(chrom_name_used)
                         print(
-                            f"[DEBUG] Found chromosome using pattern '{term}': '{chrom_name_used}'",
+                            f"[INFO] Found chromosome using pattern '{term}': '{chrom_name_used}'",
                             file=sys.stderr,
                         )
                         break
@@ -197,7 +197,7 @@ def run(json_path):
                     chrom_name_used = chrom_name
                     chrom_seq = af.fetch(chrom_name_used)
                     print(
-                        f"[DEBUG] Found exact match: '{chrom_name_used}'",
+                        f"[INFO] Found exact match: '{chrom_name_used}'",
                         file=sys.stderr,
                     )
                     break
@@ -209,7 +209,7 @@ def run(json_path):
                         chrom_name_used = chrom_name
                         chrom_seq = af.fetch(chrom_name_used)
                         print(
-                            f"[DEBUG] Found partial match: '{chrom_name_used}'",
+                            f"[INFO] Found partial match: '{chrom_name_used}'",
                             file=sys.stderr,
                         )
                         break
@@ -224,7 +224,7 @@ def run(json_path):
 
         chrom_len = len(chrom_seq)
         print(
-            f"[DEBUG] Chromosome '{chrom_name_used}' length: {chrom_len} bp",
+            f"[INFO] Chromosome '{chrom_name_used}' length: {chrom_len} bp",
             file=sys.stderr,
         )
         af.close()
@@ -371,7 +371,7 @@ def run(json_path):
 
                     row_count += 1
                     if row_count % 10000 == 0:
-                        print(f"[DEBUG] Processed {row_count} rows...", file=sys.stderr)
+                        print(f"[INFO] Processed {row_count} rows...", file=sys.stderr)
 
                 except Exception:
                     continue
