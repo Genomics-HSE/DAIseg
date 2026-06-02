@@ -31,22 +31,33 @@ def run(json_file):
 
     sbp.run(merge_cmd, shell=True)
 
-    # make_windows
+    # filter the sizes file
     sizes = Path(config["files"]["chr_lengths"])
+    tmp_sizes = prefix / "temp.sizes"
+
+    with open(sizes, "r") as f:
+        target_chr_size = [x for x in f.readlines() if x.startswith(config["CHROM"])]
+
+    assert len(target_chr_size) == 1
+    with open(tmp_sizes, "w") as f:
+        f.write(target_chr_size[0])
+
+    # make_windows
     human_out = prefix / config["window_callability"]["Thousand_genomes"]
     nd_out = prefix / config["window_callability"]["Nd_1k_genomes"]
 
     nd_cmd = f"""
-    bedtools makewindows -g {sizes} -w 1000 | bedtools coverage -a stdin -b {tmp_out} > {nd_out}
+    bedtools makewindows -g {tmp_sizes} -w 1000 | bedtools coverage -a stdin -b {tmp_out} > {nd_out}
     """
 
     sbp.run(nd_cmd, shell=True)
 
     human_cmd = f"""
-    bedtools makewindows -g {sizes} -w 1000 | bedtools coverage -a stdin -b {strict_mask} > {human_out}
+    bedtools makewindows -g {tmp_sizes} -w 1000 | bedtools coverage -a stdin -b {strict_mask} > {human_out}
     """
 
     sbp.run(human_cmd, shell=True)
 
     tmp_out.unlink()
     tmp_strict_mask_sorted.unlink()
+    tmp_sizes.unlink()
