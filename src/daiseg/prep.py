@@ -1,7 +1,18 @@
+"""
+Prepare merged SNP table for DAIseg.
+
+Logic:
+1. 1000G is filtered by the 1000G strict mask.
+2. Each Neanderthal VCF is filtered by its own mask intersected with the 1000G strict mask.
+3. Merged sites are kept when IBS has an allele absent from YRI or absent from Neanderthals.
+4. If a site is inside the 1000G mask but absent from the 1000G VCF, missing IBS/YRI genotypes are treated as REF/REF.
+"""
+
 import os
 import sys
 import subprocess
 import time
+import signal
 import pysam
 import daiseg.utils as utils
 
@@ -58,6 +69,43 @@ def run(json_path):
         print(f" [ERROR] Could not read FASTA headers: {e}", file=sys.stderr)
 
     temp_files = []
+    child_procs = []
+
+    def terminate_child_processes():
+        for proc in child_procs:
+            try:
+                if proc.poll() is None:
+                    os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+            except Exception:
+                pass
+
+        time.sleep(2)
+
+        for proc in child_procs:
+            try:
+                if proc.poll() is None:
+                    os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+            except Exception:
+                pass
+
+    def handle_stop_signal(signum, frame):
+        print(
+            "[INFO] Interrupted by user. Terminating child bcftools processes...",
+            file=sys.stderr,
+        )
+        terminate_child_processes()
+
+        for f in temp_files:
+            if os.path.exists(f):
+                try:
+                    os.remove(f)
+                except Exception:
+                    pass
+
+        sys.exit("[INFO] Stopped by user.")
+
+    signal.signal(signal.SIGINT, handle_stop_signal)
+    signal.signal(signal.SIGTERM, handle_stop_signal)
 
     print(f" [INFO] Creating temporary files...", file=sys.stderr)
 
@@ -88,8 +136,9 @@ def run(json_path):
         # Check if BED file exists, if not try alternative naming
         bed_arg = ""
         if n_bed:
+            n_bed_used = ""
             if os.path.exists(n_bed):
-                bed_arg = f"-T {n_bed}"
+                n_bed_used = n_bed
             else:
                 # Try alternative naming
                 bed_dir = os.path.dirname(n_bed)
@@ -99,8 +148,17 @@ def run(json_path):
                 if bed_base.startswith("chr"):
                     alt_bed = os.path.join(bed_dir, bed_base[3:])
                     if os.path.exists(alt_bed):
-                        bed_arg = f"-T {alt_bed}"
+                        n_bed_used = alt_bed
                         print(f" [INFO] Using alternative BED: {alt_bed}", file=sys.stderr)
+
+            if n_bed_used:
+                tmp_bed = f"{prefix}/temp_nd_{i}_{chrom_no_prefix}.bed"
+                run_step(
+                    f"zcat -f {n_bed_used} | bedtools intersect -a - -b {bed_strict} > {tmp_bed}",
+                    f"Intersecting Neanderthal BED with 1000G mask for {name}",
+                )
+                bed_arg = f"-T {tmp_bed}"
+                temp_files.append(tmp_bed)
 
         # Run in background (threads=2 per job)
         cmd_str = (
@@ -110,8 +168,9 @@ def run(json_path):
 
         print(f" [INFO] Starting job for {name}...", file=sys.stderr)
 
-        proc = subprocess.Popen(cmd_str, shell=True)
+        proc = subprocess.Popen(cmd_str, shell=True, preexec_fn=os.setsid)
         running_procs.append(proc)
+        child_procs.append(proc)
 
         temp_files.append(tmp_nd)
         temp_files.append(f"{tmp_nd}.csi")
@@ -120,6 +179,7 @@ def run(json_path):
     # Wait for completion
     for proc in running_procs:
         if proc.wait() != 0:
+            terminate_child_processes()
             for f in temp_files:
                 if os.path.exists(f):
                     os.remove(f)
@@ -185,7 +245,7 @@ def run(json_path):
                 if chrom_seq:
                     break
 
-        #  If still not found, try exact match or partial match
+        # If still not found, try exact match or partial match
         if chrom_seq is None:
             for chrom_name in available_chroms:
                 # Try exact match first
@@ -214,7 +274,7 @@ def run(json_path):
                         )
                         break
 
-        #  Final fallback - if nothing found
+        # Final fallback - if nothing found
         if chrom_seq is None:
             error_msg = f"Chromosome '{chrom_raw}' not found in Ancestral FASTA.\n"
             error_msg += f"Available chromosomes: {available_chroms}\n"
@@ -236,8 +296,13 @@ def run(json_path):
 
     # Run Pipeline and Write to File ---
     process = subprocess.Popen(
-        pipeline_cmd, shell=True, stdout=subprocess.PIPE, text=True
+        pipeline_cmd,
+        shell=True,
+        stdout=subprocess.PIPE,
+        text=True,
+        preexec_fn=os.setsid,
     )
+    child_procs.append(process)
 
     try:
         with open(output_file, "w") as out_f:
@@ -335,10 +400,18 @@ def run(json_path):
                         if hap2 != "." and len(hap2) == 1:
                             s3.add(hap2)
 
-                    if not s3:
-                        continue
-
                     s2 = get_alleles_set(cols_nd)
+
+                    # If 1000G is missing at a site that reached this point,
+                    # treat IBS/YRI as REF/REF for filtering and output.
+                    if not s3:
+                        s3 = {ref}
+                        if not s1:
+                            s1 = {ref}
+                        ibs_row_values = []
+                        for _ in cols_ibs:
+                            ibs_row_values.append(ref)
+                            ibs_row_values.append(ref)
 
                     # Site Filtering
                     # Keep if Ingroup differs from Outgroup OR Neanderthals
@@ -388,7 +461,8 @@ def run(json_path):
         sys.stderr.write(f"[ERROR] Stream processing failed: {e}\n")
         sys.exit(1)
     finally:
-        process.wait()
+        if process.poll() is None:
+            process.wait()
         for f in temp_files:
             if os.path.exists(f):
                 os.remove(f)
