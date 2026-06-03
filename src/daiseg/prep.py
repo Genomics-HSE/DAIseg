@@ -1,41 +1,40 @@
 """
 Prepare merged SNP table for DAIseg.
 
-Logic:
-1. 1000G is filtered by the 1000G strict mask.
+1. 1000G is filtered by the 1000G strict mask, as before.
 2. Each Neanderthal VCF is filtered by its own mask intersected with the 1000G strict mask.
-3. Merged sites are kept when IBS has an allele absent from YRI or absent from Neanderthals.
-4. If a site is inside the 1000G mask but absent from the 1000G VCF, missing IBS/YRI genotypes are treated as REF/REF.
+3. Sites are kept when IBS has an allele absent from YRI or absent from Neanderthals.
+4. If IBS/YRI are missing after merge, they are treated as REF/REF only when the exact site was absent from the original 1000G VCF.
 """
 
 import os
 import sys
 import subprocess
 import time
-import signal
 import pysam
 import daiseg.utils as utils
 
 
 def run_step(cmd, desc):
-    """Run shell command, exit on error."""
     try:
         subprocess.check_call(cmd, shell=True)
     except subprocess.CalledProcessError:
         sys.exit(f"[ERROR] Failed at step: {desc}")
 
 
-def run(json_path):
+def run(json_path, threads=16):
 
     start_time = time.time()
 
-    # Config
     cfg = utils.load_config(json_path)
     chrom_raw = str(cfg["CHROM"])
     files = cfg["files"]
     prefix = cfg["prefix"]
 
-    # Get output filename from JSON
+    threads_1kg = max(1, threads // 2)
+    threads_nd = max(1, threads // 4)
+    threads_merge = max(1, threads)
+
     output_filename = cfg.get(
         "data", f"prep.chr{chrom_raw.lstrip('chr').lstrip('CHR')}.tsv"
     )
@@ -43,76 +42,52 @@ def run(json_path):
 
     print(f" [INFO] Output will be written to: {output_file}", file=sys.stderr)
 
-    # Normalize chromosome name
     chrom_no_prefix = chrom_raw.lstrip("chr").lstrip("CHR")
 
     vcf_1kg = prefix + "/" + utils.expand_path(files["1000GP_files"]["vcf"])
+    vcf_1kg_initial = utils.expand_path(files["1000GP_files"].get("vcf_initial", ""))
     bed_strict = utils.expand_path(files["1000GP_files"]["bed"])
     anc_path = utils.expand_path(files["ancestral"]["fasta"])
 
-    # Check FASTA file
     if not os.path.exists(anc_path):
         sys.exit(f"[ERROR] Ancestral FASTA not found: {anc_path}")
 
-    # Try to read FASTA headers for debugging
-    try:
-        with open(anc_path, "r") as f:
-            headers = []
-            for _ in range(10):
-                line = f.readline()
-                if not line:
-                    break
-                if line.startswith(">"):
-                    headers.append(line.strip())
-
-    except Exception as e:
-        print(f" [ERROR] Could not read FASTA headers: {e}", file=sys.stderr)
-
-    temp_files = []
-    child_procs = []
-
-    def terminate_child_processes():
-        for proc in child_procs:
-            try:
-                if proc.poll() is None:
-                    os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
-            except Exception:
-                pass
-
-        time.sleep(2)
-
-        for proc in child_procs:
-            try:
-                if proc.poll() is None:
-                    os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
-            except Exception:
-                pass
-
-    def handle_stop_signal(signum, frame):
+    original_1kg_positions = set()
+    if vcf_1kg_initial and os.path.exists(vcf_1kg_initial):
+        print(" [INFO] Loading original 1000G positions...", file=sys.stderr)
+        cmd_original = (
+            f"bcftools query -r {chrom_raw} "
+            f"-f '%CHROM\\t%POS\\n' "
+            f"{vcf_1kg_initial}"
+        )
+        proc_original = subprocess.Popen(
+            cmd_original, shell=True, stdout=subprocess.PIPE, text=True
+        )
+        for line in proc_original.stdout:
+            line = line.strip()
+            if not line:
+                continue
+            chrom, pos = line.split("\t")[:2]
+            original_1kg_positions.add((chrom, pos))
+        if proc_original.wait() != 0:
+            sys.exit("[ERROR] Failed to load original 1000G positions.")
         print(
-            "[INFO] Interrupted by user. Terminating child bcftools processes...",
+            f" [INFO] Original 1000G positions loaded: {len(original_1kg_positions)}",
             file=sys.stderr,
         )
-        terminate_child_processes()
+    else:
+        print(
+            " [WARNING] Original 1000G VCF not found; REF/REF restoration will be disabled.",
+            file=sys.stderr,
+        )
 
-        for f in temp_files:
-            if os.path.exists(f):
-                try:
-                    os.remove(f)
-                except Exception:
-                    pass
-
-        sys.exit("[INFO] Stopped by user.")
-
-    signal.signal(signal.SIGINT, handle_stop_signal)
-    signal.signal(signal.SIGTERM, handle_stop_signal)
+    temp_files = []
 
     print(f" [INFO] Creating temporary files...", file=sys.stderr)
 
-    # Filter 1000 Genomes ---
     tmp_1kg = f"{prefix}/temp_1kg_{chrom_no_prefix}.bcf"
     cmd_1kg = (
-        f"bcftools view --threads 4 -r {chrom_raw} -R {bed_strict} "
+        f"bcftools view --threads {threads_1kg} -r {chrom_raw} -R {bed_strict} "
         f"-O b -o {tmp_1kg} {vcf_1kg}"
     )
     run_step(cmd_1kg, "Filtering 1000 Genomes")
@@ -121,7 +96,6 @@ def run(json_path):
     temp_files.append(tmp_1kg)
     temp_files.append(f"{tmp_1kg}.csi")
 
-    # Filter Neanderthals (Parallel) ---
     print(f" [INFO] Working with Neanderthals (Parallel)...", file=sys.stderr)
     neand_files = files.get("neand_files", {})
     nd_inputs = []
@@ -133,18 +107,15 @@ def run(json_path):
 
         tmp_nd = f"{prefix}/temp_nd_{i}_{chrom_no_prefix}.bcf"
 
-        # Check if BED file exists, if not try alternative naming
         bed_arg = ""
         if n_bed:
             n_bed_used = ""
             if os.path.exists(n_bed):
                 n_bed_used = n_bed
             else:
-                # Try alternative naming
                 bed_dir = os.path.dirname(n_bed)
                 bed_base = os.path.basename(n_bed)
 
-                # Try removing 'chr' prefix
                 if bed_base.startswith("chr"):
                     alt_bed = os.path.join(bed_dir, bed_base[3:])
                     if os.path.exists(alt_bed):
@@ -160,45 +131,37 @@ def run(json_path):
                 bed_arg = f"-T {tmp_bed}"
                 temp_files.append(tmp_bed)
 
-        # Run in background (threads=2 per job)
         cmd_str = (
-            f"bcftools view --threads 2 -r {chrom_raw} {bed_arg} -O b -o {tmp_nd} {n_vcf} && "
+            f"bcftools view --threads {threads_nd} -r {chrom_raw} {bed_arg} -O b -o {tmp_nd} {n_vcf} && "
             f"bcftools index -f {tmp_nd}"
         )
 
         print(f" [INFO] Starting job for {name}...", file=sys.stderr)
 
-        proc = subprocess.Popen(cmd_str, shell=True, preexec_fn=os.setsid)
+        proc = subprocess.Popen(cmd_str, shell=True)
         running_procs.append(proc)
-        child_procs.append(proc)
 
         temp_files.append(tmp_nd)
         temp_files.append(f"{tmp_nd}.csi")
         nd_inputs.append(tmp_nd)
 
-    # Wait for completion
     for proc in running_procs:
         if proc.wait() != 0:
-            terminate_child_processes()
             for f in temp_files:
                 if os.path.exists(f):
                     os.remove(f)
             sys.exit("[ERROR] One of the Neanderthal processing jobs failed.")
 
-    # Merge Pipeline ---
     files_str = " ".join([tmp_1kg] + nd_inputs)
 
-    # Use %TGT to extract alleles (e.g., A/G) directly
     pipeline_cmd = (
-        f"bcftools merge --threads 4 --force-samples --merge all -O u {files_str} "
+        f"bcftools merge --threads {threads_merge} --force-samples --merge all -O u {files_str} "
         f"| bcftools query -H -f '%CHROM\\t%POS\\t%REF\\t%ALT[\\t%TGT]\\n'"
     )
 
-    # Load Ancestral Genome ---
     try:
         af = pysam.FastaFile(anc_path)
 
-        # Get all available chromosome names in FASTA
         available_chroms = af.references
         print(
             f"[INFO] Available chromosomes in ancestral FASTA: {available_chroms}",
@@ -208,11 +171,9 @@ def run(json_path):
             f"[INFO] Looking for chromosome related to: '{chrom_raw}'", file=sys.stderr
         )
 
-        # chr finding for non-standard FASTA formats
         chrom_seq = None
         chrom_name_used = None
 
-        # If only one chromosome in FASTA, use it
         if len(available_chroms) == 1:
             chrom_name_used = available_chroms[0]
             chrom_seq = af.fetch(chrom_name_used)
@@ -220,16 +181,13 @@ def run(json_path):
                 f"[INFO] Using only available chromosome: '{chrom_name_used}'",
                 file=sys.stderr,
             )
-
-        # Try to find chromosome by patterns
         else:
-            # Create search patterns
             search_terms = [
-                f":{chrom_no_prefix}:",  # Look for :21: in the name
-                f"chromosome.*{chrom_no_prefix}",  # chromosome something 21
-                f"chr{chrom_no_prefix}",  # chr21
-                chrom_no_prefix,  # 21
-                f"CHR{chrom_no_prefix}",  # CHR21
+                f":{chrom_no_prefix}:",
+                f"chromosome.*{chrom_no_prefix}",
+                f"chr{chrom_no_prefix}",
+                chrom_no_prefix,
+                f"CHR{chrom_no_prefix}",
             ]
 
             for chrom_name in available_chroms:
@@ -245,10 +203,8 @@ def run(json_path):
                 if chrom_seq:
                     break
 
-        # If still not found, try exact match or partial match
         if chrom_seq is None:
             for chrom_name in available_chroms:
-                # Try exact match first
                 if (
                     chrom_name == chrom_raw
                     or chrom_name == f"chr{chrom_no_prefix}"
@@ -262,7 +218,6 @@ def run(json_path):
                     )
                     break
 
-            # Try partial match
             if chrom_seq is None:
                 for chrom_name in available_chroms:
                     if chrom_no_prefix in chrom_name or chrom_raw in chrom_name:
@@ -274,7 +229,6 @@ def run(json_path):
                         )
                         break
 
-        # Final fallback - if nothing found
         if chrom_seq is None:
             error_msg = f"Chromosome '{chrom_raw}' not found in Ancestral FASTA.\n"
             error_msg += f"Available chromosomes: {available_chroms}\n"
@@ -294,15 +248,9 @@ def run(json_path):
                 os.remove(f)
         sys.exit(f"[ERROR] Ancestral fasta issue: {e}")
 
-    # Run Pipeline and Write to File ---
     process = subprocess.Popen(
-        pipeline_cmd,
-        shell=True,
-        stdout=subprocess.PIPE,
-        text=True,
-        preexec_fn=os.setsid,
+        pipeline_cmd, shell=True, stdout=subprocess.PIPE, text=True
     )
-    child_procs.append(process)
 
     try:
         with open(output_file, "w") as out_f:
@@ -310,7 +258,6 @@ def run(json_path):
             if not header_line.startswith("#"):
                 raise RuntimeError("Pipeline returned no header.")
 
-            # Clean header (# [1]CHROM -> CHROM)
             raw_headers = header_line.lstrip("#").split("\t")
             headers = []
             for h in raw_headers:
@@ -320,13 +267,10 @@ def run(json_path):
                     h = h.split(":")[0]
                 headers.append(h.strip())
 
-            # Map columns (Strict JSON order)
             idx_chrom, idx_pos, idx_ref, idx_alt, cols_yri, cols_ibs, cols_nd = (
                 utils.map_columns(headers, cfg["samples"])
             )
 
-            # Create Output Header ===
-            # Split Ingroup into Sample_1 and Sample_2
             ibs_split_headers = []
             for i in cols_ibs:
                 name = headers[i]
@@ -335,13 +279,12 @@ def run(json_path):
 
             ibs_header_str = "\t".join(ibs_split_headers)
 
-            # Write header to file
             out_f.write(
                 f"#CHROM\tPOS\tREF\tALT\tAncestral\tOutgroup\tNeand\t{ibs_header_str}\n"
             )
 
             row_count = 0
-            # Process Rows ===
+
             for line in process.stdout:
                 parts = line.strip().split("\t")
                 if len(parts) != len(headers):
@@ -351,17 +294,14 @@ def run(json_path):
                     ref = parts[idx_ref]
                     alt = parts[idx_alt]
 
-                    # Filter: Remove Indels
                     if len(ref) > 1:
                         continue
                     if any(len(a) > 1 for a in alt.split(",")):
                         continue
 
-                    # Ancestral Allele
                     pos = int(parts[idx_pos])
                     anc = chrom_seq[pos - 1] if (pos - 1) < chrom_len else "."
 
-                    # Helper: Get unique alleles set
                     def get_alleles_set(cols):
                         s = set()
                         for i in cols:
@@ -375,7 +315,6 @@ def run(json_path):
 
                     s1 = get_alleles_set(cols_yri)
 
-                    # INGROUP PROCESSING (Split Haplotypes) ---
                     s3 = set()
                     ibs_row_values = []
 
@@ -390,11 +329,9 @@ def run(json_path):
                             elif len(alleles) == 1:
                                 hap1 = alleles[0]
 
-                        # Append both haplotypes
                         ibs_row_values.append(hap1)
                         ibs_row_values.append(hap2)
 
-                        # Update Set for filtering
                         if hap1 != "." and len(hap1) == 1:
                             s3.add(hap1)
                         if hap2 != "." and len(hap2) == 1:
@@ -402,9 +339,10 @@ def run(json_path):
 
                     s2 = get_alleles_set(cols_nd)
 
-                    # If 1000G is missing at a site that reached this point,
-                    # treat IBS/YRI as REF/REF for filtering and output.
-                    if not s3:
+                    pos_key = (parts[idx_chrom], parts[idx_pos])
+                    can_restore_ref = bool(original_1kg_positions) and pos_key not in original_1kg_positions
+
+                    if not s3 and can_restore_ref:
                         s3 = {ref}
                         if not s1:
                             s1 = {ref}
@@ -413,8 +351,9 @@ def run(json_path):
                             ibs_row_values.append(ref)
                             ibs_row_values.append(ref)
 
-                    # Site Filtering
-                    # Keep if Ingroup differs from Outgroup OR Neanderthals
+                    if not s3:
+                        continue
+
                     diff_yri = s3 - s1
                     diff_nd = s3 - s2
 
@@ -429,15 +368,12 @@ def run(json_path):
                     if not keep_site:
                         continue
 
-                    # Output formatting
                     s1_str = "{" + ",".join(sorted(s1)) + "}"
                     s2_str = "{" + ",".join(sorted(s2)) + "}"
                     s3_cols_str = "\t".join(ibs_row_values)
 
-                    # Output chromosome as normalized format (chr21)
                     output_chrom = f"{chrom_no_prefix}"
 
-                    # Write to file
                     out_f.write(
                         f"{output_chrom}\t{parts[idx_pos]}\t{parts[idx_ref]}\t{parts[idx_alt]}\t{anc}\t{s1_str}\t{s2_str}\t{s3_cols_str}\n"
                     )
@@ -461,13 +397,11 @@ def run(json_path):
         sys.stderr.write(f"[ERROR] Stream processing failed: {e}\n")
         sys.exit(1)
     finally:
-        if process.poll() is None:
-            process.wait()
+        process.wait()
         for f in temp_files:
             if os.path.exists(f):
                 os.remove(f)
 
-    # Check if output file was created
     if os.path.exists(output_file):
         file_size = os.path.getsize(output_file)
         print(
@@ -483,3 +417,4 @@ def run(json_path):
 
     elapsed = time.time() - start_time
     print(f"[INFO] Pipeline finished in {elapsed:.2f} seconds", file=sys.stderr)
+
