@@ -16,7 +16,7 @@
     },
     "1000GP_files": {
       "bed": "data/1000g/20140520.strict_mask.chr22.bed",
-      "vcf": "preprocessed.vcf.gz",
+      "vcf": "preprocessed.chr22.vcf.gz",
       "vcf_initial": "data/1000g/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz"
     },
     "ancestral": {
@@ -266,7 +266,7 @@
     "t_introgression": 55000
   },
   "window_callability": {
-    "Thousand_genomes": "1kg_coverage.bed",
-    "Nd_1k_genomes": "nd_1kg_coverage.bed"
+    "Thousand_genomes": "1kg_coverage.chr22.bed",
+    "Nd_1k_genomes": "nd_1kg_coverage.chr22.bed"
   }
 }
