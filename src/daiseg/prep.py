@@ -3,26 +3,71 @@ Prepare merged SNP table for DAIseg.
 
 1. 1000G is filtered by the 1000G strict mask, as before.
 2. Each Neanderthal VCF is filtered by its own mask intersected with the 1000G strict mask.
-3. Sites are kept when IBS has an allele absent from YRI or absent from Neanderthals.
-4. If IBS/YRI are missing after merge, they are treated as REF/REF only when the exact site was absent from the original 1000G VCF.
+3. Original 1000G exact positions and SV intervals are loaded in one pass from the original VCF.
+4. Sites are kept when IBS has an allele absent from YRI or absent from Neanderthals.
+5. If IBS/YRI are missing after merge, they are treated as REF/REF only when the exact site was absent from the original 1000G VCF and the site does not overlap an original 1000G SV interval.
 """
 
 import os
 import sys
 import subprocess
 import time
+import signal
+from bisect import bisect_right
+from collections import defaultdict
 import pysam
 import daiseg.utils as utils
 
 
+child_procs = []
+temp_files = []
+
+
 def run_step(cmd, desc):
     try:
-        subprocess.check_call(cmd, shell=True)
+        subprocess.check_call(cmd, shell=True, preexec_fn=os.setsid)
     except subprocess.CalledProcessError:
         sys.exit(f"[ERROR] Failed at step: {desc}")
 
 
+def terminate_children():
+    for proc in child_procs:
+        try:
+            if proc.poll() is None:
+                os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+        except Exception:
+            pass
+
+    time.sleep(1)
+
+    for proc in child_procs:
+        try:
+            if proc.poll() is None:
+                os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+        except Exception:
+            pass
+
+
+def cleanup_temp_files():
+    for f in temp_files:
+        if os.path.exists(f):
+            try:
+                os.remove(f)
+            except Exception:
+                pass
+
+
+def handle_stop_signal(signum, frame):
+    print("[INFO] Interrupted. Terminating child processes...", file=sys.stderr)
+    terminate_children()
+    cleanup_temp_files()
+    sys.exit("[INFO] Stopped by user.")
+
+
 def run(json_path, threads=16):
+
+    signal.signal(signal.SIGINT, handle_stop_signal)
+    signal.signal(signal.SIGTERM, handle_stop_signal)
 
     start_time = time.time()
 
@@ -53,26 +98,51 @@ def run(json_path, threads=16):
         sys.exit(f"[ERROR] Ancestral FASTA not found: {anc_path}")
 
     original_1kg_positions = set()
+    original_1kg_sv_intervals = []
+
     if vcf_1kg_initial and os.path.exists(vcf_1kg_initial):
-        print(" [INFO] Loading original 1000G positions...", file=sys.stderr)
+        print(" [INFO] Loading original 1000G positions and SV intervals...", file=sys.stderr)
         cmd_original = (
             f"bcftools query -r {chrom_raw} "
-            f"-f '%CHROM\\t%POS\\n' "
+            f"-f '%CHROM\\t%POS\\t%INFO/END\\t%ALT\\n' "
             f"{vcf_1kg_initial}"
         )
         proc_original = subprocess.Popen(
-            cmd_original, shell=True, stdout=subprocess.PIPE, text=True
+            cmd_original,
+            shell=True,
+            stdout=subprocess.PIPE,
+            text=True,
+            preexec_fn=os.setsid,
         )
+        child_procs.append(proc_original)
+
         for line in proc_original.stdout:
             line = line.strip()
             if not line:
                 continue
-            chrom, pos = line.split("\t")[:2]
+
+            fields = line.split("\t")
+            if len(fields) < 4:
+                continue
+
+            chrom, pos, end, alt = fields[:4]
             original_1kg_positions.add((chrom, pos))
+
+            if "<" in alt and ">" in alt:
+                start_pos = int(pos)
+                end_pos = int(end) if end not in ["", "."] else start_pos
+                original_1kg_sv_intervals.append((chrom, start_pos, end_pos))
+
         if proc_original.wait() != 0:
-            sys.exit("[ERROR] Failed to load original 1000G positions.")
+            cleanup_temp_files()
+            sys.exit("[ERROR] Failed to load original 1000G positions/SV intervals.")
+
         print(
             f" [INFO] Original 1000G positions loaded: {len(original_1kg_positions)}",
+            file=sys.stderr,
+        )
+        print(
+            f" [INFO] Original 1000G SV intervals loaded: {len(original_1kg_sv_intervals)}",
             file=sys.stderr,
         )
     else:
@@ -81,7 +151,39 @@ def run(json_path, threads=16):
             file=sys.stderr,
         )
 
-    temp_files = []
+    def build_sv_index(intervals):
+        by_chrom = defaultdict(list)
+        for chrom, start, end in intervals:
+            by_chrom[chrom].append((start, end))
+
+        index = {}
+        for chrom, chrom_intervals in by_chrom.items():
+            chrom_intervals.sort()
+            merged = []
+            for start, end in chrom_intervals:
+                if not merged or start > merged[-1][1] + 1:
+                    merged.append([start, end])
+                elif end > merged[-1][1]:
+                    merged[-1][1] = end
+
+            starts = [x[0] for x in merged]
+            ends = [x[1] for x in merged]
+            index[chrom] = (starts, ends)
+        return index
+
+    original_1kg_sv_index = build_sv_index(original_1kg_sv_intervals)
+    print(
+        f" [INFO] Original 1000G merged SV intervals indexed: {sum(len(v[0]) for v in original_1kg_sv_index.values())}",
+        file=sys.stderr,
+    )
+
+    def in_original_1kg_sv(chrom, pos):
+        starts, ends = original_1kg_sv_index.get(chrom, ([], []))
+        if not starts:
+            return False
+        pos = int(pos)
+        i = bisect_right(starts, pos) - 1
+        return i >= 0 and pos <= ends[i]
 
     print(f" [INFO] Creating temporary files...", file=sys.stderr)
 
@@ -138,8 +240,9 @@ def run(json_path, threads=16):
 
         print(f" [INFO] Starting job for {name}...", file=sys.stderr)
 
-        proc = subprocess.Popen(cmd_str, shell=True)
+        proc = subprocess.Popen(cmd_str, shell=True, preexec_fn=os.setsid)
         running_procs.append(proc)
+        child_procs.append(proc)
 
         temp_files.append(tmp_nd)
         temp_files.append(f"{tmp_nd}.csi")
@@ -147,9 +250,7 @@ def run(json_path, threads=16):
 
     for proc in running_procs:
         if proc.wait() != 0:
-            for f in temp_files:
-                if os.path.exists(f):
-                    os.remove(f)
+            cleanup_temp_files()
             sys.exit("[ERROR] One of the Neanderthal processing jobs failed.")
 
     files_str = " ".join([tmp_1kg] + nd_inputs)
@@ -243,14 +344,17 @@ def run(json_path, threads=16):
         )
         af.close()
     except Exception as e:
-        for f in temp_files:
-            if os.path.exists(f):
-                os.remove(f)
+        cleanup_temp_files()
         sys.exit(f"[ERROR] Ancestral fasta issue: {e}")
 
     process = subprocess.Popen(
-        pipeline_cmd, shell=True, stdout=subprocess.PIPE, text=True
+        pipeline_cmd,
+        shell=True,
+        stdout=subprocess.PIPE,
+        text=True,
+        preexec_fn=os.setsid,
     )
+    child_procs.append(process)
 
     try:
         with open(output_file, "w") as out_f:
@@ -340,7 +444,11 @@ def run(json_path, threads=16):
                     s2 = get_alleles_set(cols_nd)
 
                     pos_key = (parts[idx_chrom], parts[idx_pos])
-                    can_restore_ref = bool(original_1kg_positions) and pos_key not in original_1kg_positions
+                    can_restore_ref = (
+                        bool(original_1kg_positions)
+                        and pos_key not in original_1kg_positions
+                        and not in_original_1kg_sv(parts[idx_chrom], parts[idx_pos])
+                    )
 
                     if not s3 and can_restore_ref:
                         s3 = {ref}
@@ -395,12 +503,15 @@ def run(json_path, threads=16):
 
     except Exception as e:
         sys.stderr.write(f"[ERROR] Stream processing failed: {e}\n")
+        terminate_children()
         sys.exit(1)
     finally:
-        process.wait()
-        for f in temp_files:
-            if os.path.exists(f):
-                os.remove(f)
+        if process.poll() is None:
+            try:
+                process.wait()
+            except Exception:
+                pass
+        cleanup_temp_files()
 
     if os.path.exists(output_file):
         file_size = os.path.getsize(output_file)
@@ -417,4 +528,3 @@ def run(json_path, threads=16):
 
     elapsed = time.time() - start_time
     print(f"[INFO] Pipeline finished in {elapsed:.2f} seconds", file=sys.stderr)
-
