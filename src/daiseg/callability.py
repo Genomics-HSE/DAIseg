@@ -36,9 +36,18 @@ def run(json_file):
     tmp_sizes = prefix / "temp.sizes"
 
     with open(sizes, "r") as f:
-        target_chr_size = [x for x in f.readlines() if x.startswith(config["CHROM"])]
+        target_chr_size = [
+            x for x in f.readlines()
+            if x.strip() and x.split()[0] == config["CHROM"]
+        ]
 
-    assert len(target_chr_size) == 1
+    assert len(target_chr_size) == 1, (
+        f"Expected exactly one chromosome size entry for {config['CHROM']} "
+        f"in {sizes}, found {len(target_chr_size)}: {target_chr_size[:5]}"
+    )
+
+
+
     with open(tmp_sizes, "w") as f:
         f.write(target_chr_size[0])
 
