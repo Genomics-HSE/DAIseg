@@ -92,6 +92,22 @@ Then, this will create the callability/coverage `.bed` files for modern samples 
 
 Finally, this will create `<prefix>/preprocessed_data.tsv` -- the main input file for the HMM algorithm.
 
+### Site selection
+
+DAIseg uses IBS as the ingroup and YRI as the outgroup. All sites are restricted to the 1000 Genomes strict callability mask.
+
+The 1000 Genomes VCF is subset to the selected IBS and YRI samples, normalized, restricted to SNP records, and stripped of unused alternative alleles. Neanderthal calls are filtered separately: each Neanderthal callable mask is intersected with the 1000 Genomes strict mask, so Neanderthal-only calls outside regions callable in 1000 Genomes are excluded.
+
+After merging the filtered 1000 Genomes and Neanderthal files, DAIseg builds three allele sets for each site: `S_IBS`, `S_YRI`, and `S_Neand`.
+
+A site is kept if IBS carries an allele absent from YRI or absent from Neanderthals:
+
+`S_IBS - S_YRI != empty`  
+or  
+`S_IBS - S_Neand != empty`
+
+If a site is present in Neanderthal VCFs but absent from the processed 1000 Genomes VCF, missing IBS/YRI genotypes are restored as `REF/REF` only when this is safe: the exact position must be absent from the original 1000 Genomes VCF, and the site must not overlap a structural-variant interval in that original VCF. Otherwise, the site remains missing in 1000 Genomes and is skipped if IBS has no observed allele.
+
 **3.** Run the algorithm. There are three available options:
 
 - `daiseg run -json <config>` will do .... This command takes a single JSON file as an argument.
